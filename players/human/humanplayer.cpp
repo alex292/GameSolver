@@ -2,36 +2,30 @@
 
 #include <iostream>
 
-#include <QTextStream>
 #include <QDebug>
+#include <QTextStream>
 
-HumanPlayer::HumanPlayer(const std::shared_ptr<const Board> &board) :
-    Player(board)
-{
+HumanPlayer::HumanPlayer(const std::shared_ptr<const Board> &board)
+    : Player(board) {}
 
-}
+Move HumanPlayer::GetNextMove() {
+  Move move;
+  do {
+    std::cout << "HumanPlayer \t Enter Move: ";
+    QTextStream qtin(stdin);
+    QString word;
+    qtin >> word;
 
+    bool is_number;
+    move = word.toInt(&is_number);
 
-Move HumanPlayer::getNextMove()
-{
-    Move move;
-    do {
-        std::cout << "HumanPlayer \t Enter Move: ";
-        QTextStream qtin(stdin);
-        QString word;
-        qtin >> word;
+    if (!is_number) {
+      bool is_valid;
+      move = board_->ReadableMoveToMove(word, is_valid);
 
-        bool isNumber;
-        move = word.toInt(&isNumber);
+      if (!is_valid) continue;
+    }
+  } while (!board_->IsMovePossible(move));
 
-        if(!isNumber) {
-            bool isValid;
-            move = board_->readableMove2move(word, isValid);
-
-            if(!isValid)
-                continue;
-        }
-    } while(!board_->isMovePossible(move));
-
-    return move;
+  return move;
 }

@@ -6,18 +6,17 @@
 #include <random>
 #include <vector>
 
-class RandomPlayer : public Player
-{
-public:
-    RandomPlayer(const std::shared_ptr<const Board> &board);
+class RandomPlayer : public Player {
+ public:
+  RandomPlayer(const std::shared_ptr<const Board> &board);
 
-    Move getNextMove();
+  Move GetNextMove();
 
-protected:
-    std::random_device randomDevice_;
-    std::mt19937 randomEngine_;
+ protected:
+  std::random_device random_device_;
+  std::mt19937 random_engine_;
 
-    std::vector<Move> possibleMoves_;
+  std::vector<Move> possible_moves_;
 };
 
-#endif // RANDOMPLAYER_H
+#endif  // RANDOMPLAYER_H

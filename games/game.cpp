@@ -2,32 +2,26 @@
 
 #include <QDebug>
 
-using namespace std;
+Game::Game(const std::shared_ptr<Board> &board, const std::shared_ptr<Player> &player_white, const std::shared_ptr<Player> &player_black)
+    : board_(board)
+    , player_white_(player_white)
+    , player_black_(player_black) {}
 
-Game::Game(const shared_ptr<Board> &board, const shared_ptr<Player> &playerWhite, const shared_ptr<Player> &playerBlack) :
-    board_(board),
-    playerWhite_(playerWhite),
-    playerBlack_(playerBlack)
-{
+void Game::Run() {
+  while (!board_->IsGameOver()) {
+    Move move = (board_->IsTurnWhite()) ? player_white_->GetNextMove() : player_black_->GetNextMove();
+    qDebug() << "Player" << ((board_->IsTurnWhite()) ? "white" : "black") << "plays" << move << "(" << board_->MoveToReadableMove(move) << ")";
 
-}
+    board_->MakeMove(move);
+    player_white_->Update(move);
+    player_black_->Update(move);
+  }
 
-void Game::run()
-{
-    while(!board_->isGameOver()) {
-        Move move = (board_->isTurnWhite()) ? playerWhite_->getNextMove() : playerBlack_->getNextMove();
-        qDebug() << "Player" << ((board_->isTurnWhite()) ? "white" : "black") << "plays" << move << "(" << board_->move2readableMove(move) << ")";
-
-        board_->makeMove(move);
-        playerWhite_->update(move);
-        playerBlack_->update(move);
-    }
-
-    qDebug() << "### Game Over ###";
-    if(board_->isWinWhite())
-        qDebug() << "Player white wins!";
-    else if(board_->isWinBlack())
-        qDebug() << "Player black wins!";
-    else
-        qDebug() << "tie";
+  qDebug() << "### Game Over ###";
+  if (board_->IsWinWhite())
+    qDebug() << "Player white wins!";
+  else if (board_->IsWinBlack())
+    qDebug() << "Player black wins!";
+  else
+    qDebug() << "tie";
 }

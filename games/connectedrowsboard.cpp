@@ -1,53 +1,45 @@
 #include "connectedrowsboard.h"
 
-using namespace std;
+ConnectedRowsBoard::ConnectedRowsBoard() {}
 
-ConnectedRowsBoard::ConnectedRowsBoard()
-{
+void ConnectedRowsBoard::CheckForGameOver(PositionIndex last_position) {
+  // check for win
+  PositionValue desired_position_value = (is_turn_white_) ? POSITION_VALUE_WHITE : POSITION_VALUE_BLACK;
+  for (unsigned char row : positions_to_rows_->at(last_position)) {
+    const std::vector<PositionIndex> &row_positions = rows_to_positions_->at(row);
+
+    bool all_desired = true;
+    for (int i = 0; i < row_positions.size() && all_desired; ++i)
+      all_desired = (positions_[row_positions[i]] == desired_position_value);
+
+    if (all_desired) {
+      is_game_over_ = true;
+      is_win_white_ = is_turn_white_;
+      is_win_black_ = !is_turn_white_;
+      return;
+    }
+  }
+
+  // check for tie
+  if (move_sequence_.size() == positions_.size()) {
+    is_game_over_ = true;
+    is_win_white_ = false;
+    is_win_black_ = false;
+    return;
+  }
 }
 
-
-void ConnectedRowsBoard::checkForGameOver(PositionIndex lastPosition)
-{
-    // check for win
-    PositionValue desiredPositionValue = (turnWhite_) ? POSITION_VALUE_WHITE : POSITION_VALUE_BLACK;
-    for(unsigned char row : positionsToRows_->at(lastPosition)) {
-        const vector<PositionIndex> &rowPositions = rowsToPositions_->at(row);
-
-        bool allDesired = true;
-        for(int i=0; i<rowPositions.size() && allDesired; ++i)
-            allDesired = (positions_[rowPositions[i]] == desiredPositionValue);
-
-        if(allDesired) {
-            gameOver_ = true;
-            winWhite_ = turnWhite_;
-            winBlack_ = !turnWhite_;
-            return;
-        }
-    }
-
-    // check for tie
-    if(moveSequence_.size() == positions_.size()) {
-        gameOver_ = true;
-        winWhite_ = false;
-        winBlack_ = false;
-        return;
-    }
+void ConnectedRowsBoard::InitConnectedRows() {
+  GenerateRowsToPositions();
+  GeneratePositionsToRows();
 }
 
-void ConnectedRowsBoard::initConnectedRows()
-{
-    generateRowsToPositions();
-    generatePositionsToRows();
-}
+void ConnectedRowsBoard::GeneratePositionsToRows() {
+  positions_to_rows_ = std::make_shared<std::vector<std::vector<unsigned char>>>(positions_.size());
 
-void ConnectedRowsBoard::generatePositionsToRows()
-{
-    positionsToRows_ = make_shared<vector<vector<unsigned char>>>(positions_.size());
-
-    for(int row=0; row<rowsToPositions_->size(); ++row) {
-        for(PositionIndex positionIndex : rowsToPositions_->at(row)) {
-            positionsToRows_->at(positionIndex).push_back(row);
-        }
+  for (int row = 0; row < rows_to_positions_->size(); ++row) {
+    for (PositionIndex positionIndex : rows_to_positions_->at(row)) {
+      positions_to_rows_->at(positionIndex).push_back(row);
     }
+  }
 }

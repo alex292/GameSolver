@@ -1,33 +1,26 @@
 #include "zobristgenerator.h"
 
-using namespace std;
-
-ZobristGenerator &ZobristGenerator::getInstance()
-{
-    static ZobristGenerator instance;
-    return instance;
+ZobristGenerator &ZobristGenerator::GetInstance() {
+  static ZobristGenerator instance;
+  return instance;
 }
 
-std::shared_ptr<std::vector<ZobristValue> > ZobristGenerator::generateUniqueZobristValues(int num)
-{
-    shared_ptr<vector<ZobristValue>> values = make_shared<vector<ZobristValue>>();
-    values->reserve(num);
+std::shared_ptr<std::vector<ZobristValue>> ZobristGenerator::GenerateUniqueZobristValues(int num) {
+  std::shared_ptr<std::vector<ZobristValue>> values = std::make_shared<std::vector<ZobristValue>>();
+  values->reserve(num);
 
-    for(int i=0; i<num; ++i) {
-        ZobristValue value;
-        do {
-            value = zobristDistribution_(randomEngine_);
-        } while(usedZobristValues_.contains(value));
-        values->push_back(value);
-        usedZobristValues_.insert(value);
-    }
+  for (int i = 0; i < num; ++i) {
+    ZobristValue value;
+    do {
+      value = zobrist_distribution_(random_engine_);
+    } while (used_zobrist_values_.contains(value));
+    values->push_back(value);
+    used_zobrist_values_.insert(value);
+  }
 
-    return values;
+  return values;
 }
 
-ZobristGenerator::ZobristGenerator() :
-    randomEngine_(randomDevice_()),
-    zobristDistribution_(uniform_int_distribution<ZobristValue>(numeric_limits<ZobristValue>::min(), numeric_limits<ZobristValue>::max()))
-{
-
-}
+ZobristGenerator::ZobristGenerator()
+    : random_engine_(random_device_())
+    , zobrist_distribution_(std::numeric_limits<ZobristValue>::min(), std::numeric_limits<ZobristValue>::max()) {}

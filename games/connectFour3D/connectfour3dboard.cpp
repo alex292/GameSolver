@@ -1,112 +1,106 @@
 #include "connectfour3dboard.h"
+
 #include "games/zobristgenerator.h"
 
-using namespace std;
+ConnectFour3DBoard::ConnectFour3DBoard()
+    : Board2DStacked(4, 4, 4)
+    , ConnectedRowsBoard() {
+  // zobrist values
+  ZobristGenerator &zobrist_generator = ZobristGenerator::GetInstance();
+  zobrist_values_positions_white_ = zobrist_generator.GenerateUniqueZobristValues(num_positions_);
+  zobrist_values_positions_black_ = zobrist_generator.GenerateUniqueZobristValues(num_positions_);
 
-
-ConnectFour3DBoard::ConnectFour3DBoard() :
-    Board2DStacked(4,4,4),
-    ConnectedRowsBoard()
-{
-    // zobrist values
-    ZobristGenerator &zobristGenerator = ZobristGenerator::getInstance();
-    zobristValuesPositionsWhite_ = zobristGenerator.generateUniqueZobristValues(numPositions_);
-    zobristValuesPositionsBlack_ = zobristGenerator.generateUniqueZobristValues(numPositions_);
-
-    // init connected rows
-    initConnectedRows();
+  // init connected rows
+  InitConnectedRows();
 }
 
-PositionIndex ConnectFour3DBoard::performMove(Move move)
-{
-    PositionIndex position = move + 16*stackHeights_[move];
+PositionIndex ConnectFour3DBoard::PerformMove(Move move) {
+  PositionIndex position = move + 16 * stack_heights_[move];
 
-    // set position
-    stackHeights_[move] += 1;
-    if(turnWhite_) {
-        positions_[position] = POSITION_VALUE_WHITE;
-        zobristValue_ ^= zobristValuesPositionsWhite_->at(position);
-    } else {
-        positions_[position] = POSITION_VALUE_BLACK;
-        zobristValue_ ^= zobristValuesPositionsBlack_->at(position);
-    }
+  // set position
+  stack_heights_[move] += 1;
+  if (is_turn_white_) {
+    positions_[position] = POSITION_VALUE_WHITE;
+    zobrist_value_ ^= zobrist_values_positions_white_->at(position);
+  } else {
+    positions_[position] = POSITION_VALUE_BLACK;
+    zobrist_value_ ^= zobrist_values_positions_black_->at(position);
+  }
 
-    return position;
+  return position;
 }
 
-std::shared_ptr<Board> ConnectFour3DBoard::copy() const
-{
-    return make_shared<ConnectFour3DBoard>(*this);
+std::shared_ptr<Board> ConnectFour3DBoard::Copy() const {
+  return std::make_shared<ConnectFour3DBoard>(*this);
 }
 
-void ConnectFour3DBoard::generateRowsToPositions()
-{
-    rowsToPositions_ = make_shared<vector<vector<PositionIndex>>>();
+void ConnectFour3DBoard::GenerateRowsToPositions() {
+  rows_to_positions_ = std::make_shared<std::vector<std::vector<PositionIndex>>>();
 
-    // straight rows X,Y,Z
-    for(int i=0; i<4; ++i) {
-        for(int j=0; j<4; ++j) {
-            vector<PositionIndex> rowX;
-            vector<PositionIndex> rowY;
-            vector<PositionIndex> rowZ;
+  // straight rows X,Y,Z
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      std::vector<PositionIndex> row_x;
+      std::vector<PositionIndex> row_y;
+      std::vector<PositionIndex> row_z;
 
-            for(int k=0; k<4; ++k) {
-                rowX.push_back(mapXYZtoPositionIndex(k,j,i));
-                rowY.push_back(mapXYZtoPositionIndex(j,k,i));
-                rowZ.push_back(mapXYZtoPositionIndex(j,i,k));
-            }
+      for (int k = 0; k < 4; ++k) {
+        row_x.push_back(MapXYZtoPositionIndex(k, j, i));
+        row_y.push_back(MapXYZtoPositionIndex(j, k, i));
+        row_z.push_back(MapXYZtoPositionIndex(j, i, k));
+      }
 
-            rowsToPositions_->push_back(rowX);
-            rowsToPositions_->push_back(rowY);
-            rowsToPositions_->push_back(rowZ);
-        }
+      rows_to_positions_->push_back(row_x);
+      rows_to_positions_->push_back(row_y);
+      rows_to_positions_->push_back(row_z);
+    }
+  }
+
+  // 2D diagonals
+  for (int i = 0; i < 4; ++i) {
+    std::vector<PositionIndex> diag_x;
+    std::vector<PositionIndex> diag_x_inv;
+
+    std::vector<PositionIndex> diag_y;
+    std::vector<PositionIndex> diag_y_inv;
+
+    std::vector<PositionIndex> diag_z;
+    std::vector<PositionIndex> diag_z_inv;
+
+    for (int j = 0; j < 4; ++j) {
+      diag_x.push_back(MapXYZtoPositionIndex(i, j, j));
+      diag_x_inv.push_back(MapXYZtoPositionIndex(i, 3 - j, j));
+
+      diag_y.push_back(MapXYZtoPositionIndex(j, i, j));
+      diag_y_inv.push_back(MapXYZtoPositionIndex(j, i, 3 - j));
+
+      diag_z.push_back(MapXYZtoPositionIndex(j, j, i));
+      diag_z_inv.push_back(MapXYZtoPositionIndex(j, 3 - j, i));
     }
 
-    // 2D diagonals
-    for(int i=0; i<4; ++i) {
-        vector<PositionIndex> diagX;
-        vector<PositionIndex> diagXinv;
+    rows_to_positions_->push_back(diag_x);
+    rows_to_positions_->push_back(diag_x_inv);
+    rows_to_positions_->push_back(diag_y);
+    rows_to_positions_->push_back(diag_y_inv);
+    rows_to_positions_->push_back(diag_z);
+    rows_to_positions_->push_back(diag_z_inv);
+  }
 
-        vector<PositionIndex> diagY;
-        vector<PositionIndex> diagYinv;
+  // 3D diagonals
+  std::vector<PositionIndex> diag_tl;
+  std::vector<PositionIndex> diag_tr;
+  std::vector<PositionIndex> diag_br;
+  std::vector<PositionIndex> diag_bl;
 
-        vector<PositionIndex> diagZ;
-        vector<PositionIndex> diagZinv;
+  for (int i = 0; i < 4; ++i) {
+    diag_tl.push_back(MapXYZtoPositionIndex(i, i, i));
+    diag_tr.push_back(MapXYZtoPositionIndex(3 - i, i, i));
+    diag_br.push_back(MapXYZtoPositionIndex(3 - i, 3 - i, i));
+    diag_bl.push_back(MapXYZtoPositionIndex(i, 3 - i, i));
+  }
 
-        for(int j=0; j<4; ++j) {
-            diagX.push_back(mapXYZtoPositionIndex(i,j,j));
-            diagXinv.push_back(mapXYZtoPositionIndex(i,3-j,j));
-
-            diagY.push_back(mapXYZtoPositionIndex(j,i,j));
-            diagYinv.push_back(mapXYZtoPositionIndex(j,i,3-j));
-
-            diagZ.push_back(mapXYZtoPositionIndex(j,j,i));
-            diagZinv.push_back(mapXYZtoPositionIndex(j,3-j,i));
-        }
-
-        rowsToPositions_->push_back(diagX);
-        rowsToPositions_->push_back(diagXinv);
-        rowsToPositions_->push_back(diagY);
-        rowsToPositions_->push_back(diagYinv);
-        rowsToPositions_->push_back(diagZ);
-        rowsToPositions_->push_back(diagZinv);
-    }
-
-    // 3D diagonals
-    vector<PositionIndex> diagTL;
-    vector<PositionIndex> diagTR;
-    vector<PositionIndex> diagBR;
-    vector<PositionIndex> diagBL;
-
-    for(int i=0; i<4; ++i) {
-        diagTL.push_back(mapXYZtoPositionIndex(i,i,i));
-        diagTR.push_back(mapXYZtoPositionIndex(3-i,i,i));
-        diagBR.push_back(mapXYZtoPositionIndex(3-i,3-i,i));
-        diagBL.push_back(mapXYZtoPositionIndex(i,3-i,i));
-    }
-
-    rowsToPositions_->push_back(diagTL);
-    rowsToPositions_->push_back(diagTR);
-    rowsToPositions_->push_back(diagBR);
-    rowsToPositions_->push_back(diagBL);
+  rows_to_positions_->push_back(diag_tl);
+  rows_to_positions_->push_back(diag_tr);
+  rows_to_positions_->push_back(diag_br);
+  rows_to_positions_->push_back(diag_bl);
 }

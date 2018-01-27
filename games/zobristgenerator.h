@@ -1,30 +1,29 @@
 #ifndef ZOBRISTGENERATOR_H
 #define ZOBRISTGENERATOR_H
 
-#include "types.h"
-
 #include <QSet>
 
-#include <random>
 #include <memory>
+#include <random>
 #include <vector>
 
-class ZobristGenerator
-{
-public:
-    static ZobristGenerator& getInstance();
-    ZobristGenerator(ZobristGenerator const&) = delete;
-    void operator=(ZobristGenerator const&) = delete;
+#include "types.h"
 
-    std::shared_ptr<std::vector<ZobristValue>> generateUniqueZobristValues(int num);
+class ZobristGenerator {
+ public:
+  static ZobristGenerator& GetInstance();
+  ZobristGenerator(ZobristGenerator const&) = delete;
+  void operator=(ZobristGenerator const&) = delete;
 
-private:
-    ZobristGenerator();
+  std::shared_ptr<std::vector<ZobristValue>> GenerateUniqueZobristValues(int num);
 
-    QSet<ZobristValue> usedZobristValues_;
-    std::random_device randomDevice_;
-    std::mt19937_64 randomEngine_;
-    std::uniform_int_distribution<ZobristValue> zobristDistribution_;
+ private:
+  ZobristGenerator();
+
+  QSet<ZobristValue> used_zobrist_values_;
+  std::random_device random_device_;
+  std::mt19937_64 random_engine_;
+  std::uniform_int_distribution<ZobristValue> zobrist_distribution_;
 };
 
-#endif // ZOBRISTGENERATOR_H
+#endif  // ZOBRISTGENERATOR_H

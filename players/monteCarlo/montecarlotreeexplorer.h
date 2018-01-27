@@ -1,23 +1,21 @@
 #ifndef MONTECARLOTREEEXPLORER_H
 #define MONTECARLOTREEEXPLORER_H
 
+#include <QDeadlineTimer>
+#include <QRunnable>
+
 #include "montecarlotree.h"
 
-#include <QRunnable>
-#include <QDeadlineTimer>
+class MonteCarloTreeExplorer : public QRunnable {
+ public:
+  MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadline_timer);
 
-class MonteCarloTreeExplorer : public QRunnable
-{
+  void run();
 
-public:
-    MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadlineTimer);
+ protected:
+  const std::shared_ptr<const QDeadlineTimer> deadline_timer_;
 
-    void run();
-
-protected:
-    const std::shared_ptr<const QDeadlineTimer> deadlineTimer_;
-
-    std::shared_ptr<MonteCarloTree> tree_;
+  std::shared_ptr<MonteCarloTree> tree_;
 };
 
-#endif // MONTECARLOTREEEXPLORER_H
+#endif  // MONTECARLOTREEEXPLORER_H

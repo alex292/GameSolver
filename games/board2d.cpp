@@ -1,51 +1,42 @@
 #include "board2d.h"
 
-using namespace std;
+Board2D::Board2D(int size_x, int size_y)
+    : Board2D(size_x, size_y, size_x * size_y, size_x * size_y) {}
 
-Board2D::Board2D(int sizeX, int sizeY) :
-    Board2D(sizeX, sizeY, sizeX*sizeY, sizeX*sizeY)
-{
+Board2D::Board2D(int size_x, int size_y, int num_moves, int num_positions)
+    : size_x_(size_x)
+    , size_y_(size_y)
+    , num_moves_(num_moves)
+    , num_positions_(num_positions) {
+  positions_ = std::vector<PositionValue>(num_positions, POSITION_VALUE_FREE);
 }
 
-Board2D::Board2D(int sizeX, int sizeY, int numMoves, int numPositions) :
-    sizeX_(sizeX),
-    sizeY_(sizeY),
-    numMoves_(numMoves),
-    numPositions_(numPositions)
-{
-    positions_ = vector<PositionValue>(numPositions, POSITION_VALUE_FREE);
+QString Board2D::MoveToReadableMove(Move move) const {
+  int y = move / size_x_;
+  int x = move % size_x_;
+
+  return ((char)'A' + x) + QString::number(y + 1);
 }
 
-QString Board2D::move2readableMove(Move move) const
-{
-    int y = move / sizeX_;
-    int x = move % sizeX_;
+Move Board2D::ReadableMoveToMove(const QString &readable_move, bool &valid) const {
+  int x = (readable_move.at(0).toUpper().toLatin1() - 'A');
+  int y = readable_move.mid(1).toInt() - 1;
 
-    return ((char)'A' + x) + QString::number(y + 1);
+  valid = (x < 0 || x >= size_x_ || y < 0 || y >= size_y_);
+
+  return y * size_x_ + x;
 }
 
-Move Board2D::readableMove2move(const QString &readableMove, bool &valid) const
-{
-    int x = (readableMove.at(0).toUpper().toLatin1() - 'A');
-    int y = readableMove.mid(1).toInt() - 1;
+void Board2D::GetPossibleMoves(std::vector<Move> &moves) const {
+  if (is_game_over_)
+    return;
 
-    valid = (x < 0 || x >= sizeX_ || y < 0 || y >= sizeY_);
-
-    return y*sizeX_ + x;
+  for (int i = 0; i < num_moves_; ++i) {
+    if (IsMovePossible(i))
+      moves.push_back(i);
+  }
 }
 
-void Board2D::getPossibleMoves(std::vector<Move> &moves) const
-{
-    if(gameOver_)
-        return;
-
-    for(int i=0; i<numMoves_; ++i) {
-        if(isMovePossible(i))
-            moves.push_back(i);
-    }
-}
-
-bool Board2D::isMovePossible(Move move) const
-{
-    return (positions_[move] == POSITION_VALUE_FREE);
+bool Board2D::IsMovePossible(Move move) const {
+  return (positions_[move] == POSITION_VALUE_FREE);
 }

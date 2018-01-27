@@ -1,20 +1,15 @@
 #include "board2dstacked.h"
 
-using namespace std;
-
-Board2DStacked::Board2DStacked(int sizeX, int sizeY, int sizeZ) :
-    Board2D(sizeX, sizeY, sizeX*sizeY, sizeX*sizeY*sizeZ),
-    sizeZ_(sizeZ)
-{
-    stackHeights_ = vector<unsigned char>(numMoves_, 0);
+Board2DStacked::Board2DStacked(int size_x, int size_y, int size_z)
+    : Board2D(size_x, size_y, size_x * size_y, size_x * size_y * size_z)
+    , size_z_(size_z) {
+  stack_heights_ = std::vector<unsigned char>(num_moves_, 0);
 }
 
-bool Board2DStacked::isMovePossible(Move move) const
-{
-    return (stackHeights_[move] < sizeZ_);
+bool Board2DStacked::IsMovePossible(Move move) const {
+  return (stack_heights_[move] < size_z_);
 }
 
-PositionIndex Board2DStacked::mapXYZtoPositionIndex(int x, int y, int z) const
-{
-    return (x + y*sizeX_ + z*sizeX_*sizeY_);
+PositionIndex Board2DStacked::MapXYZtoPositionIndex(int x, int y, int z) const {
+  return (x + y * size_x_ + z * size_x_ * size_y_);
 }

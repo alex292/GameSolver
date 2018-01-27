@@ -1,44 +1,38 @@
 #include "montecarlotree.h"
+
 #include <QDebug>
 
-using namespace std;
-
-MonteCarloTree::MonteCarloTree(const std::shared_ptr<const Board> &board)
-{
-    nodeCollection_ = make_shared<MonteCarloTreeNodeCollection>();
-    root_ = nodeCollection_->createNode(board->copy());
+MonteCarloTree::MonteCarloTree(const std::shared_ptr<const Board> &board) {
+  node_collection_ = std::make_shared<MonteCarloTreeNodeCollection>();
+  root_ = node_collection_->CreateNode(board->Copy());
 }
 
-const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::selection()
-{
-    shared_ptr<MonteCarloTreeNode> node = root_;
-    while(!node->isLeafNode())
-        node = node->selectNextBestChild();
+const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Selection() {
+  std::shared_ptr<MonteCarloTreeNode> node = root_;
+  while (!node->IsLeafNode())
+    node = node->SelectNextBestChild();
 
-    return node;
+  return node;
 }
 
-const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::expansion(const std::shared_ptr<MonteCarloTreeNode> &selectedNode)
-{
-    shared_ptr<MonteCarloTreeNode> nextNode = selectedNode->expandNextChild(nodeCollection_);
+const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Expansion(const std::shared_ptr<MonteCarloTreeNode> &selected_node) {
+  std::shared_ptr<MonteCarloTreeNode> next_node = selected_node->ExpandNextChild(node_collection_);
 
-    return nextNode;
+  return next_node;
 }
 
-Move MonteCarloTree::getBestMove()
-{
-    return root_->getBestMove();
+Move MonteCarloTree::GetBestMove() {
+  return root_->GetBestMove();
 }
 
-void MonteCarloTree::update(Move move)
-{
-    if(root_->hasExploredChildNode(move)) {
-        root_ = root_->getChildNode(move);
-    } else {
-        const shared_ptr<Board> board = root_->getBoardCopy();
-        board->makeMove(move);
-        root_ = nodeCollection_->createNode(board);
-    }
+void MonteCarloTree::Update(Move move) {
+  if (root_->HasExploredChildNode(move)) {
+    root_ = root_->GetChildNode(move);
+  } else {
+    const std::shared_ptr<Board> board = root_->GetBoard()->Copy();
+    board->MakeMove(move);
+    root_ = node_collection_->CreateNode(board);
+  }
 
-    nodeCollection_->removeExpiredNodes();
+  node_collection_->RemoveExpiredNodes();
 }

@@ -5,16 +5,15 @@
 
 #include <memory>
 
-class Player
-{
-public:
-    Player(const std::shared_ptr<const Board> &board);
+class Player {
+ public:
+  Player(const std::shared_ptr<const Board> &board);
 
-    virtual Move getNextMove() = 0;
-    virtual void update(Move move) {};
+  virtual Move GetNextMove() = 0;
+  virtual void Update(Move move){};
 
-protected:
-    std::shared_ptr<const Board> board_;
+ protected:
+  std::shared_ptr<const Board> board_;
 };
 
-#endif // PLAYER_H
+#endif  // PLAYER_H

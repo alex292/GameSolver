@@ -1,24 +1,22 @@
 #ifndef TICTACTOEBOARD_H
 #define TICTACTOEBOARD_H
 
-#include "games/board2d.h".h"
+#include "games/board2d.h".h "
 #include "games/connectedrowsboard.h"
 
+class TicTacToeBoard : public Board2D, public ConnectedRowsBoard {
+ public:
+  TicTacToeBoard();
 
-class TicTacToeBoard : public Board2D, public ConnectedRowsBoard
-{
-public:
-    TicTacToeBoard();
+  PositionIndex PerformMove(Move move);
 
-    PositionIndex performMove(Move move);
+  std::shared_ptr<Board> Copy() const;
 
-    std::shared_ptr<Board> copy() const;
+ protected:
+  void GenerateRowsToPositions();
 
-protected:
-    void generateRowsToPositions();
-
-    std::shared_ptr<std::vector<ZobristValue>> zobristValuesPositionsWhite_;
-    std::shared_ptr<std::vector<ZobristValue>> zobristValuesPositionsBlack_;
+  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_white_;
+  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_black_;
 };
 
-#endif // TICTACTOEBOARD_H
+#endif  // TICTACTOEBOARD_H

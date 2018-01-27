@@ -1,35 +1,32 @@
 #ifndef MONTECARLOPLAYER_H
 #define MONTECARLOPLAYER_H
 
-#include "players/player.h"
-#include "montecarlotree.h"
-#include "montecarlotreeexplorer.h"
-
 #include <QHash>
 #include <QReadWriteLock>
 #include <QThreadPool>
 
-class MonteCarloPlayer : public Player
-{
+#include "montecarlotree.h"
+#include "montecarlotreeexplorer.h"
+#include "players/player.h"
 
-public:
-    MonteCarloPlayer(const std::shared_ptr<const Board> &board, int timePerMove, int numThreads = QThread::idealThreadCount());
+class MonteCarloPlayer : public Player {
+ public:
+  MonteCarloPlayer(const std::shared_ptr<const Board> &board, int time_per_move, int num_threads = QThread::idealThreadCount());
 
-    Move getNextMove();
-    void update(Move move);
+  Move GetNextMove();
+  void Update(Move move);
 
-protected:
-    const int numThreads_;
-    const int timePerMove_;
+ protected:
+  const int num_threads_;
+  const int time_per_move_;
 
-    std::shared_ptr<MonteCarloTree> tree_;
+  std::shared_ptr<MonteCarloTree> tree_;
 
-    std::vector<std::shared_ptr<MonteCarloTreeExplorer>> treeExplorers_;
+  std::vector<std::shared_ptr<MonteCarloTreeExplorer>> tree_explorers_;
 
-    std::shared_ptr<QDeadlineTimer> deadlineTimer_;
+  std::shared_ptr<QDeadlineTimer> deadline_timer_;
 
-    QThreadPool threadPool_;
-
+  QThreadPool thread_pool_;
 };
 
-#endif // MONTECARLOPLAYER_H
+#endif  // MONTECARLOPLAYER_H

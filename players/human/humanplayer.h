@@ -3,12 +3,11 @@
 
 #include "players/player.h"
 
-class HumanPlayer : public Player
-{
-public:
-    HumanPlayer(const std::shared_ptr<const Board> &board);
+class HumanPlayer : public Player {
+ public:
+  HumanPlayer(const std::shared_ptr<const Board> &board);
 
-    Move getNextMove();
+  Move GetNextMove();
 };
 
-#endif // HUMANPLAYER_H
+#endif  // HUMANPLAYER_H

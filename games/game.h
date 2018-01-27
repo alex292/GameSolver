@@ -4,17 +4,16 @@
 #include "games/board.h"
 #include "players/player.h"
 
-class Game
-{
-public:
-    Game(const std::shared_ptr<Board> &board, const std::shared_ptr<Player> &playerWhite, const std::shared_ptr<Player> &playerBlack);
+class Game {
+ public:
+  Game(const std::shared_ptr<Board> &board, const std::shared_ptr<Player> &player_white, const std::shared_ptr<Player> &player_black);
 
-    void run();
+  void Run();
 
-protected:
-    std::shared_ptr<Board> board_;
-    std::shared_ptr<Player> playerWhite_;
-    std::shared_ptr<Player> playerBlack_;
+ protected:
+  std::shared_ptr<Board> board_;
+  std::shared_ptr<Player> player_white_;
+  std::shared_ptr<Player> player_black_;
 };
 
-#endif // GAME_H
+#endif  // GAME_H

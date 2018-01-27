@@ -4,20 +4,19 @@
 #include "games/board2dstacked.h"
 #include "games/connectedrowsboard.h"
 
-class ConnectFour3DBoard : public Board2DStacked, public ConnectedRowsBoard
-{
-public:
-    ConnectFour3DBoard();
+class ConnectFour3DBoard : public Board2DStacked, public ConnectedRowsBoard {
+ public:
+  ConnectFour3DBoard();
 
-    PositionIndex performMove(Move move);
+  PositionIndex PerformMove(Move move);
 
-    std::shared_ptr<Board> copy() const;
+  std::shared_ptr<Board> Copy() const;
 
-protected:
-    void generateRowsToPositions();
+ protected:
+  void GenerateRowsToPositions();
 
-    std::shared_ptr<std::vector<ZobristValue>> zobristValuesPositionsWhite_;
-    std::shared_ptr<std::vector<ZobristValue>> zobristValuesPositionsBlack_;
+  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_white_;
+  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_black_;
 };
 
-#endif // CONNECTFOUR3DBOARD_H
+#endif  // CONNECTFOUR3DBOARD_H

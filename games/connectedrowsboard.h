@@ -3,22 +3,20 @@
 
 #include "board.h"
 
-class ConnectedRowsBoard : public virtual Board
-{
-public:
-    ConnectedRowsBoard();
+class ConnectedRowsBoard : public virtual Board {
+ public:
+  ConnectedRowsBoard();
 
-    void checkForGameOver(PositionIndex lastPosition);
+  void CheckForGameOver(PositionIndex last_position);
 
-protected:
-    void initConnectedRows();
+ protected:
+  void InitConnectedRows();
 
-    virtual void generateRowsToPositions() = 0;
-    void generatePositionsToRows();
+  virtual void GenerateRowsToPositions() = 0;
+  void GeneratePositionsToRows();
 
-    std::shared_ptr<std::vector<std::vector<PositionIndex>>> rowsToPositions_;
-    std::shared_ptr<std::vector<std::vector<unsigned char>>> positionsToRows_;
-
+  std::shared_ptr<std::vector<std::vector<PositionIndex>>> rows_to_positions_;
+  std::shared_ptr<std::vector<std::vector<unsigned char>>> positions_to_rows_;
 };
 
-#endif // CONNECTEDROWSBOARD_H
+#endif  // CONNECTEDROWSBOARD_H

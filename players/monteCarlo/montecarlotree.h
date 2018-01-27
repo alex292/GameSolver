@@ -1,30 +1,26 @@
 #ifndef MONTECARLOTREE_H
 #define MONTECARLOTREE_H
 
+#include <QReadWriteLock>
+
 #include "montecarlotreenode.h"
 #include "montecarlotreenodecollection.h"
 
-#include <QReadWriteLock>
+class MonteCarloTree {
+ public:
+  MonteCarloTree(const std::shared_ptr<const Board> &board);
 
-class MonteCarloTree
-{
-public:
-    MonteCarloTree(const std::shared_ptr<const Board> &board);
+  const std::shared_ptr<MonteCarloTreeNode> GetTreeRoot() const { return root_; }
 
+  const std::shared_ptr<MonteCarloTreeNode> Selection();
+  const std::shared_ptr<MonteCarloTreeNode> Expansion(const std::shared_ptr<MonteCarloTreeNode> &selected_node);
 
-    const std::shared_ptr<MonteCarloTreeNode> getTreeRoot() const {return root_;}
+  Move GetBestMove();
+  void Update(Move move);
 
-    const std::shared_ptr<MonteCarloTreeNode> selection();
-    const std::shared_ptr<MonteCarloTreeNode> expansion(const std::shared_ptr<MonteCarloTreeNode> &selectedNode);
-
-    Move getBestMove();
-    void update(Move move);
-
-
-protected:
-    std::shared_ptr<MonteCarloTreeNode> root_;
-    std::shared_ptr<MonteCarloTreeNodeCollection> nodeCollection_;
-
+ protected:
+  std::shared_ptr<MonteCarloTreeNode> root_;
+  std::shared_ptr<MonteCarloTreeNodeCollection> node_collection_;
 };
 
-#endif // MONTECARLOTREE_H
+#endif  // MONTECARLOTREE_H

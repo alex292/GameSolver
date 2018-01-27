@@ -1,23 +1,22 @@
 #ifndef MONTECARLOTREENODECOLLECTION_H
 #define MONTECARLOTREENODECOLLECTION_H
 
+#include <QReadWriteLock>
+
 #include "montecarlotreenode.h"
 class MonteCarloTreeNode;
 
-#include <QReadWriteLock>
+class MonteCarloTreeNodeCollection {
+ public:
+  MonteCarloTreeNodeCollection();
 
-class MonteCarloTreeNodeCollection
-{
-public:
-    MonteCarloTreeNodeCollection();
+  const std::shared_ptr<MonteCarloTreeNode> CreateNode(const std::shared_ptr<const Board> &board);
+  const std::shared_ptr<MonteCarloTreeNode> GetNode(const std::shared_ptr<const Board> &board);
+  void RemoveExpiredNodes();
 
-    const std::shared_ptr<MonteCarloTreeNode> createNode(const std::shared_ptr<const Board> &board);
-    const std::shared_ptr<MonteCarloTreeNode> getNode(const std::shared_ptr<const Board> &board);
-    void removeExpiredNodes();
-
-protected:
-    QHash<ZobristValue, std::weak_ptr<MonteCarloTreeNode>> nodes_;
-    QReadWriteLock nodesLock_;
+ protected:
+  QReadWriteLock nodes_lock_;
+  QHash<ZobristValue, std::weak_ptr<MonteCarloTreeNode>> nodes_;
 };
 
-#endif // MONTECARLOTREENODECOLLECTION_H
+#endif  // MONTECARLOTREENODECOLLECTION_H

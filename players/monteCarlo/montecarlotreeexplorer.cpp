@@ -1,38 +1,33 @@
 #include "montecarlotreeexplorer.h"
+
 #include <QDebug>
 #include <QThread>
 
-using namespace std;
+MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadline_timer)
+    : tree_(tree)
+    , deadline_timer_(deadline_timer) {}
 
-MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadlineTimer)  :
-    tree_(tree),
-    deadlineTimer_(deadlineTimer)
-{
+void MonteCarloTreeExplorer::run() {
+  const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
 
-}
+  while (!deadline_timer_->hasExpired() && !root->IsResultDecided()) {
+    // selection
+    std::shared_ptr<MonteCarloTreeNode> node = tree_->Selection();
 
-void MonteCarloTreeExplorer::run()
-{
-    const shared_ptr<MonteCarloTreeNode> root = tree_->getTreeRoot();
+    std::shared_ptr<const Board> playout_board;
+    node->LockExpansion();
+    if (node->IsExpandable()) {
+      // expansion
+      node = tree_->Expansion(node);
 
-    while(!deadlineTimer_->hasExpired() && !root->isResultDecided()) {
-        // selection
-        shared_ptr<MonteCarloTreeNode> node = tree_->selection();
-
-        shared_ptr<const Board> playoutBoard;
-        node->lockExpansion();
-        if(node->isExpandable()) {
-            // expansion
-            node = tree_->expansion(node);
-
-            // playout
-            playoutBoard = node->randomPlayout();
-        } else {
-            node->unlockExpansion();
-            playoutBoard = node->getBoard();
-        }
-
-        // backpropagation
-        node->startBackpropagation(playoutBoard);
+      // playout
+      playout_board = node->RandomPlayout();
+    } else {
+      node->UnlockExpansion();
+      playout_board = node->GetBoard();
     }
+
+    // backpropagation
+    node->StartBackpropagation(playout_board);
+  }
 }

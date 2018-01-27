@@ -1,53 +1,48 @@
 #include "tictactoeboard.h"
-#include "games/zobristgenerator.h"
 
 #include <QDebug>
 
-using namespace std;
+#include "games/zobristgenerator.h"
 
-TicTacToeBoard::TicTacToeBoard() :
-    Board2D(3,3),
-    ConnectedRowsBoard()
-{
-    // zobrist values
-    ZobristGenerator &zobristGenerator = ZobristGenerator::getInstance();
-    zobristValuesPositionsWhite_ = zobristGenerator.generateUniqueZobristValues(numPositions_);
-    zobristValuesPositionsBlack_ = zobristGenerator.generateUniqueZobristValues(numPositions_);
+TicTacToeBoard::TicTacToeBoard()
+    : Board2D(3, 3)
+    , ConnectedRowsBoard() {
+  // zobrist values
+  ZobristGenerator &zobrist_generator = ZobristGenerator::GetInstance();
+  zobrist_values_positions_white_ = zobrist_generator.GenerateUniqueZobristValues(num_positions_);
+  zobrist_values_positions_black_ = zobrist_generator.GenerateUniqueZobristValues(num_positions_);
 
-    // connected rows
-    initConnectedRows();
+  // connected rows
+  InitConnectedRows();
 }
 
-PositionIndex TicTacToeBoard::performMove(Move move)
-{
-    PositionIndex position = move;
+PositionIndex TicTacToeBoard::PerformMove(Move move) {
+  PositionIndex position = move;
 
-    // set position
-    if(turnWhite_) {
-        positions_[position] = POSITION_VALUE_WHITE;
-        zobristValue_ ^= zobristValuesPositionsWhite_->at(position);
-    } else {
-        positions_[position] = POSITION_VALUE_BLACK;
-        zobristValue_ ^= zobristValuesPositionsBlack_->at(position);
-    }
+  // set position
+  if (is_turn_white_) {
+    positions_[position] = POSITION_VALUE_WHITE;
+    zobrist_value_ ^= zobrist_values_positions_white_->at(position);
+  } else {
+    positions_[position] = POSITION_VALUE_BLACK;
+    zobrist_value_ ^= zobrist_values_positions_black_->at(position);
+  }
 
-    return position;
+  return position;
 }
 
-std::shared_ptr<Board> TicTacToeBoard::copy() const
-{
-    return make_shared<TicTacToeBoard>(*this);
+std::shared_ptr<Board> TicTacToeBoard::Copy() const {
+  return std::make_shared<TicTacToeBoard>(*this);
 }
 
-void TicTacToeBoard::generateRowsToPositions()
-{
-    rowsToPositions_ = make_shared<vector<vector<PositionIndex>>>();
-    rowsToPositions_->push_back({0,1,2}); // 0
-    rowsToPositions_->push_back({3,4,5}); // 1
-    rowsToPositions_->push_back({6,7,8}); // 2
-    rowsToPositions_->push_back({0,3,6}); // 3
-    rowsToPositions_->push_back({1,4,7}); // 4
-    rowsToPositions_->push_back({2,5,8}); // 5
-    rowsToPositions_->push_back({0,4,8}); // 6
-    rowsToPositions_->push_back({2,4,6}); // 7
+void TicTacToeBoard::GenerateRowsToPositions() {
+  rows_to_positions_ = std::make_shared<std::vector<std::vector<PositionIndex>>>();
+  rows_to_positions_->push_back({0, 1, 2});  // 0
+  rows_to_positions_->push_back({3, 4, 5});  // 1
+  rows_to_positions_->push_back({6, 7, 8});  // 2
+  rows_to_positions_->push_back({0, 3, 6});  // 3
+  rows_to_positions_->push_back({1, 4, 7});  // 4
+  rows_to_positions_->push_back({2, 5, 8});  // 5
+  rows_to_positions_->push_back({0, 4, 8});  // 6
+  rows_to_positions_->push_back({2, 4, 6});  // 7
 }
