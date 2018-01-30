@@ -5,6 +5,7 @@
 #include <QRunnable>
 
 #include "montecarlotree.h"
+#include "players/random/randomplayer.h"
 
 class MonteCarloTreeExplorer : public QRunnable {
  public:
@@ -16,6 +17,10 @@ class MonteCarloTreeExplorer : public QRunnable {
   const std::shared_ptr<const QDeadlineTimer> deadline_timer_;
 
   std::shared_ptr<MonteCarloTree> tree_;
+
+  RandomPlayer random_player_;
+
+  const std::shared_ptr<const Board> RandomPlayout(const std::shared_ptr<const MonteCarloTreeNode> &node);
 };
 
 #endif  // MONTECARLOTREEEXPLORER_H

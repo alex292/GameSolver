@@ -8,9 +8,9 @@
 
 class RandomPlayer : public Player {
  public:
-  RandomPlayer(const std::shared_ptr<const Board> &board);
+  RandomPlayer();
 
-  Move GetNextMove();
+  Move GetNextMove(const std::shared_ptr<const Board> &board);
 
  protected:
   std::random_device random_device_;

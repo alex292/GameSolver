@@ -30,8 +30,6 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
   void AddParent(const std::shared_ptr<MonteCarloTreeNode> &parent);
   void RemoveExpiredParents();
 
-  const std::shared_ptr<const Board> RandomPlayout() const;
-
   void StartBackpropagation(const std::shared_ptr<const Board> &playout_board);
   void BackpropagateWin(QSet<ZobristValue> &propagated_nodes);
   void BackpropagateLoss(QSet<ZobristValue> &propagated_nodes);
@@ -44,9 +42,6 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
 
   unsigned int GetNumEvaluations() const { return num_evaluations_; }
   unsigned int GetNumWins() const { return num_wins_; }
-
-  const std::shared_ptr<MonteCarloTreeNode> GetChildNode(Move move);
-  bool HasExploredChildNode(Move move);
 
   std::vector<Move> unexplored_moves_;
 

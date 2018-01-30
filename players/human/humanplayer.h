@@ -5,9 +5,9 @@
 
 class HumanPlayer : public Player {
  public:
-  HumanPlayer(const std::shared_ptr<const Board> &board);
+  HumanPlayer();
 
-  Move GetNextMove();
+  Move GetNextMove(const std::shared_ptr<const Board> &board);
 };
 
 #endif  // HUMANPLAYER_H

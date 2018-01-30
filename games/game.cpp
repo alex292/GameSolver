@@ -9,12 +9,10 @@ Game::Game(const std::shared_ptr<Board> &board, const std::shared_ptr<Player> &p
 
 void Game::Run() {
   while (!board_->IsGameOver()) {
-    Move move = (board_->IsTurnWhite()) ? player_white_->GetNextMove() : player_black_->GetNextMove();
+    Move move = (board_->IsTurnWhite()) ? player_white_->GetNextMove(board_) : player_black_->GetNextMove(board_);
     qDebug() << "Player" << ((board_->IsTurnWhite()) ? "white" : "black") << "plays" << move << "(" << board_->MoveToReadableMove(move) << ")";
 
     board_->MakeMove(move);
-    player_white_->Update(move);
-    player_black_->Update(move);
   }
 
   qDebug() << "### Game Over ###";

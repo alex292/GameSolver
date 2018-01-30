@@ -2,9 +2,8 @@
 
 #include <QDebug>
 
-MonteCarloTree::MonteCarloTree(const std::shared_ptr<const Board> &board) {
+MonteCarloTree::MonteCarloTree() {
   node_collection_ = std::make_shared<MonteCarloTreeNodeCollection>();
-  root_ = node_collection_->CreateNode(board->Copy());
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Selection() {
@@ -25,14 +24,7 @@ Move MonteCarloTree::GetBestMove() {
   return root_->GetBestMove();
 }
 
-void MonteCarloTree::Update(Move move) {
-  if (root_->HasExploredChildNode(move)) {
-    root_ = root_->GetChildNode(move);
-  } else {
-    const std::shared_ptr<Board> board = root_->GetBoard()->Copy();
-    board->MakeMove(move);
-    root_ = node_collection_->CreateNode(board);
-  }
-
+void MonteCarloTree::SetRoot(const std::shared_ptr<const Board> &board) {
+  root_ = node_collection_->GetNode(board);
   node_collection_->RemoveExpiredNodes();
 }

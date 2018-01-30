@@ -21,7 +21,7 @@ void MonteCarloTreeExplorer::run() {
       node = tree_->Expansion(node);
 
       // playout
-      playout_board = node->RandomPlayout();
+      playout_board = RandomPlayout(node);
     } else {
       node->UnlockExpansion();
       playout_board = node->GetBoard();
@@ -30,4 +30,13 @@ void MonteCarloTreeExplorer::run() {
     // backpropagation
     node->StartBackpropagation(playout_board);
   }
+}
+
+const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(const std::shared_ptr<const MonteCarloTreeNode> &node) {
+  std::shared_ptr<Board> board = node->GetBoard()->Copy();
+  while (!board->IsGameOver()) {
+    Move move = random_player_.GetNextMove(board);
+    board->MakeMove(move);
+  }
+  return board;
 }

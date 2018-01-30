@@ -111,16 +111,6 @@ void MonteCarloTreeNode::RemoveExpiredParents() {
   parents_.erase(remove_if(parents_.begin(), parents_.end(), [](const std::weak_ptr<const MonteCarloTreeNode> &p) { return p.expired(); }), parents_.end());
 }
 
-const std::shared_ptr<const Board> MonteCarloTreeNode::RandomPlayout() const {
-  std::shared_ptr<Board> board = board_->Copy();
-  RandomPlayer random_player(board);
-  while (!board->IsGameOver()) {
-    Move move = random_player.GetNextMove();
-    board->MakeMove(move);
-  }
-  return board;
-}
-
 void MonteCarloTreeNode::StartBackpropagation(const std::shared_ptr<const Board> &playout_board) {
   QSet<ZobristValue> propagated_nodes;
 
@@ -207,16 +197,6 @@ void MonteCarloTreeNode::LockExpansion() {
 
 void MonteCarloTreeNode::UnlockExpansion() {
   expansion_mutex_.unlock();
-}
-
-const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::GetChildNode(Move move) {
-  QReadLocker locker(&explored_moves_lock_);
-  return explored_moves_.value(move);
-}
-
-bool MonteCarloTreeNode::HasExploredChildNode(Move move) {
-  QReadLocker locker(&explored_moves_lock_);
-  return explored_moves_.contains(move);
 }
 
 void MonteCarloTreeNode::HasWinningMove(Move winning_move) {

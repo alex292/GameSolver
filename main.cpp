@@ -22,7 +22,7 @@
 
 int main(int argc, char *argv[]) {
   // arguments
-  int time_per_move = 100000000000;
+  int time_per_move = 10000;  // 0000000;
   if (argc > 1)
     time_per_move = atoi(argv[1]);
 
@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
 
   std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
 
-  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(board, time_per_move, num_threads);
-  std::shared_ptr<Player> player_black = std::make_shared<HumanPlayer>(board);
+  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(time_per_move, num_threads);
+  std::shared_ptr<Player> player_black = std::make_shared<HumanPlayer>();
 
   Game game(board, player_white, player_black);
   game.Run();

@@ -8,7 +8,7 @@
 
 class MonteCarloTree {
  public:
-  MonteCarloTree(const std::shared_ptr<const Board> &board);
+  MonteCarloTree();
 
   const std::shared_ptr<MonteCarloTreeNode> GetTreeRoot() const { return root_; }
 
@@ -16,7 +16,7 @@ class MonteCarloTree {
   const std::shared_ptr<MonteCarloTreeNode> Expansion(const std::shared_ptr<MonteCarloTreeNode> &selected_node);
 
   Move GetBestMove();
-  void Update(Move move);
+  void SetRoot(const std::shared_ptr<const Board> &board);
 
  protected:
   std::shared_ptr<MonteCarloTreeNode> root_;

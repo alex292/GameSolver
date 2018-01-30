@@ -57,11 +57,10 @@ void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
   while (iter.hasNext()) {
     iter.next();
     std::weak_ptr<MonteCarloTreeNode> &node = iter.value();
-    if (node.expired()) {
+    if (node.expired())
       nodes_.remove(iter.key());
-    } else {
+    else
       node.lock()->RemoveExpiredParents();
-    }
   }
   // qDebug() << "numNodes:" << nodes_.size();
 }

@@ -4,11 +4,11 @@
 #include <QThread>
 #include <QTimer>
 
-MonteCarloPlayer::MonteCarloPlayer(const std::shared_ptr<const Board> &board, int time_per_move, int num_threads)
-    : Player(board)
+MonteCarloPlayer::MonteCarloPlayer(int time_per_move, int num_threads)
+    : Player()
     , time_per_move_(time_per_move)
     , num_threads_(num_threads) {
-  tree_ = std::make_shared<MonteCarloTree>(board);
+  tree_ = std::make_shared<MonteCarloTree>();
 
   deadline_timer_ = std::make_shared<QDeadlineTimer>();
 
@@ -19,7 +19,9 @@ MonteCarloPlayer::MonteCarloPlayer(const std::shared_ptr<const Board> &board, in
   }
 }
 
-Move MonteCarloPlayer::GetNextMove() {
+Move MonteCarloPlayer::GetNextMove(const std::shared_ptr<const Board> &board) {
+  tree_->SetRoot(board);
+
   deadline_timer_->setRemainingTime(time_per_move_);
 
   for (const std::shared_ptr<MonteCarloTreeExplorer> &treeExplorer : tree_explorers_)
@@ -30,8 +32,4 @@ Move MonteCarloPlayer::GetNextMove() {
   Move best_move = tree_->GetBestMove();
 
   return best_move;
-}
-
-void MonteCarloPlayer::Update(Move move) {
-  tree_->Update(move);
 }

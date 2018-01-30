@@ -5,10 +5,10 @@
 #include <QDebug>
 #include <QTextStream>
 
-HumanPlayer::HumanPlayer(const std::shared_ptr<const Board> &board)
-    : Player(board) {}
+HumanPlayer::HumanPlayer()
+    : Player() {}
 
-Move HumanPlayer::GetNextMove() {
+Move HumanPlayer::GetNextMove(const std::shared_ptr<const Board> &board) {
   Move move;
   do {
     std::cout << "HumanPlayer \t Enter Move: ";
@@ -21,11 +21,12 @@ Move HumanPlayer::GetNextMove() {
 
     if (!is_number) {
       bool is_valid;
-      move = board_->ReadableMoveToMove(word, is_valid);
+      move = board->ReadableMoveToMove(word, is_valid);
 
-      if (!is_valid) continue;
+      if (!is_valid)
+        continue;
     }
-  } while (!board_->IsMovePossible(move));
+  } while (!board->IsMovePossible(move));
 
   return move;
 }

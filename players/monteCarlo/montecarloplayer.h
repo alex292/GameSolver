@@ -11,10 +11,9 @@
 
 class MonteCarloPlayer : public Player {
  public:
-  MonteCarloPlayer(const std::shared_ptr<const Board> &board, int time_per_move, int num_threads = QThread::idealThreadCount());
+  MonteCarloPlayer(int time_per_move, int num_threads = QThread::idealThreadCount());
 
-  Move GetNextMove();
-  void Update(Move move);
+  Move GetNextMove(const std::shared_ptr<const Board> &board);
 
  protected:
   const int num_threads_;
