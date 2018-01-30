@@ -23,9 +23,8 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
   const std::shared_ptr<MonteCarloTreeNode> SelectNextBestChild();
   double GetUCTValue(unsigned int num_parent_evaluations);
 
-  const std::shared_ptr<MonteCarloTreeNode> ExpandNextChild(const std::shared_ptr<MonteCarloTreeNodeCollection> &node_collection);
-
-  const std::shared_ptr<const Board> GetBoard() const { return board_; }
+  Move GetNextUnexploredMove();
+  void AddExploredMove(const std::shared_ptr<MonteCarloTreeNode> &node);
 
   void AddParent(const std::shared_ptr<MonteCarloTreeNode> &parent);
   void RemoveExpiredParents();
@@ -35,19 +34,16 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
   void BackpropagateLoss(QSet<ZobristValue> &propagated_nodes);
   void BackpropagateTie(QSet<ZobristValue> &propagated_nodes);
 
-  Move GetBestMove();
+  const std::shared_ptr<const Board> GetBoard() const { return board_; }
 
-  void LockExpansion();
-  void UnlockExpansion();
+  Move GetBestMove();
 
   unsigned int GetNumEvaluations() const { return num_evaluations_; }
   unsigned int GetNumWins() const { return num_wins_; }
 
-  std::vector<Move> unexplored_moves_;
-
-  bool IsWinningState() { return is_winning_state_; }
   bool IsLosingState() { return is_losing_state_; }
-  bool IsResultDecided() { return (is_winning_state_ || is_losing_state_); }
+  bool IsWinningState() { return is_winning_state_; }
+  bool IsResultDecided() { return (is_losing_state_ || is_winning_state_); }
 
   void HasWinningMove(Move winning_move);
   void HasLosingMove();
@@ -61,15 +57,16 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
   std::atomic<unsigned int> num_wins_;
   std::atomic<unsigned int> num_ties_;
 
-  QMutex expansion_mutex_;
+  QMutex unexplored_moves_mutex_;
+  std::vector<Move> unexplored_moves_;
 
   QReadWriteLock explored_moves_lock_;
   QHash<Move, std::shared_ptr<MonteCarloTreeNode>> explored_moves_;
 
   QMutex result_decided_mutex_;
-  std::atomic<bool> is_winning_state_ = {false};
   std::atomic<bool> is_losing_state_ = {false};
-  std::atomic<Move> next_move_;
+  std::atomic<bool> is_winning_state_ = {false};
+  std::atomic<Move> winning_move_;
 };
 
 #endif  // MONTECARLOTREENODE_H

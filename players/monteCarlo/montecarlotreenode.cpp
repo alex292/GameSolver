@@ -10,10 +10,10 @@ MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board
   num_wins_ = 0;
   num_ties_ = 0;
 
-  if (!board_->IsGameOver())
-    board_->GetPossibleMoves(unexplored_moves_);
+  if (board_->IsGameOver())
+    is_losing_state_ = true;
   else
-    is_winning_state_ = true;
+    board_->GetPossibleMoves(unexplored_moves_);
 }
 
 MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board, const std::shared_ptr<MonteCarloTreeNode> &parent)
@@ -27,20 +27,34 @@ MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board
 }
 
 bool MonteCarloTreeNode::IsLeafNode() {
-  QReadLocker locker(&explored_moves_lock_);
+  QMutexLocker locker_unexplored(&unexplored_moves_mutex_);
+  if (!unexplored_moves_.empty())
+    return true;
 
-  return (unexplored_moves_.size() != 0 || explored_moves_.size() == 0);
+  QReadLocker locker_explored(&explored_moves_lock_);
+  if (explored_moves_.empty())
+    return true;
+
+  return false;
 }
 
 bool MonteCarloTreeNode::IsExpandable() {
+  unexplored_moves_mutex_.lock();
+  if (!unexplored_moves_.empty()) {
+    return true;  // keep lock!
+  }
+
+  unexplored_moves_mutex_.unlock();
+  return false;
+
   return (unexplored_moves_.size() > 0);
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChild() {
-  if (is_losing_state_)
-    return explored_moves_[next_move_];
-
   if (is_winning_state_)
+    return explored_moves_[winning_move_];
+
+  if (is_losing_state_)
     return explored_moves_.begin().value();
 
   unsigned int num_parent_evaluations = num_evaluations_;
@@ -53,7 +67,6 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
   while (iter.hasNext()) {
     iter.next();
     const std::shared_ptr<MonteCarloTreeNode> &n = iter.value();
-
     double value = n->GetUCTValue(num_parent_evaluations);
 
     if (value > best_value) {
@@ -69,38 +82,33 @@ double MonteCarloTreeNode::GetUCTValue(unsigned int num_parent_evaluations) {
   if (num_evaluations_ == 0)
     return 0;
 
-  if (is_losing_state_)
+  if (is_winning_state_)
     return 0;
 
-  if (is_winning_state_)
+  if (is_losing_state_)
     return std::numeric_limits<double>::infinity();
 
   return ((num_wins_ + 0.1 * num_ties_) / (double)num_evaluations_) + 1.414213562 * sqrt(log((double)num_parent_evaluations) / num_evaluations_);
 }
 
-const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::ExpandNextChild(const std::shared_ptr<MonteCarloTreeNodeCollection> &node_collection) {
-  // get next move
+Move MonteCarloTreeNode::GetNextUnexploredMove() {
   Move next_move = unexplored_moves_.back();
   unexplored_moves_.pop_back();
+  return next_move;
+}
 
-  // perform next move
-  const std::shared_ptr<Board> next_board = board_->Copy();
-  next_board->MakeMove(next_move);
-
-  // get node for next move
-  std::shared_ptr<MonteCarloTreeNode> next_node = node_collection->GetNode(next_board);
-  next_node->AddParent(shared_from_this());
-
+void MonteCarloTreeNode::AddExploredMove(const std::shared_ptr<MonteCarloTreeNode> &node) {
   // add explored move
+  Move move = node->GetBoard()->GetLastMove();
   QWriteLocker locker(&explored_moves_lock_);
-  explored_moves_.insert(next_move, next_node);
+  explored_moves_.insert(move, node);
 
-  expansion_mutex_.unlock();
+  // unlock expansion
+  unexplored_moves_mutex_.unlock();
 
-  if (next_node->IsWinningState())
-    HasWinningMove(next_move);
-
-  return next_node;
+  // check for winning/losing moves
+  if (node->IsLosingState())
+    HasWinningMove(move);
 }
 
 void MonteCarloTreeNode::AddParent(const std::shared_ptr<MonteCarloTreeNode> &parent) {
@@ -167,8 +175,8 @@ void MonteCarloTreeNode::BackpropagateTie(QSet<ZobristValue> &propagated_nodes) 
 }
 
 Move MonteCarloTreeNode::GetBestMove() {
-  if (is_losing_state_)
-    return next_move_;
+  if (is_winning_state_)
+    return winning_move_;
 
   Move best_move;
   int best_move_num_evaluations = -1;
@@ -191,22 +199,14 @@ Move MonteCarloTreeNode::GetBestMove() {
   return best_move;
 }
 
-void MonteCarloTreeNode::LockExpansion() {
-  expansion_mutex_.lock();
-}
-
-void MonteCarloTreeNode::UnlockExpansion() {
-  expansion_mutex_.unlock();
-}
-
 void MonteCarloTreeNode::HasWinningMove(Move winning_move) {
   QMutexLocker locker(&result_decided_mutex_);
 
-  if (is_losing_state_)
+  if (is_winning_state_)
     return;
 
-  is_losing_state_ = true;
-  next_move_ = winning_move;
+  is_winning_state_ = true;
+  winning_move_ = winning_move;
   for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
     if (!n.expired())
       n.lock()->HasLosingMove();
@@ -216,30 +216,31 @@ void MonteCarloTreeNode::HasWinningMove(Move winning_move) {
 void MonteCarloTreeNode::HasLosingMove() {
   QMutexLocker locker(&result_decided_mutex_);
 
-  if (is_winning_state_)
+  if (is_losing_state_)
     return;
 
-  QMutexLocker expansion_locker(&expansion_mutex_);
+  // check if unexplored nodes exist
+  QMutexLocker unexplored_locker(&unexplored_moves_mutex_);
   if (!unexplored_moves_.empty())
     return;
-  expansion_locker.unlock();
+  unexplored_locker.unlock();
 
-  bool all_moves_loosing = true;
+  // check if any child nodes are not winning
   QReadLocker explored_locker(&explored_moves_lock_);
   QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(explored_moves_);
-  while (iter.hasNext() && all_moves_loosing) {
+  while (iter.hasNext()) {
     iter.next();
     const std::shared_ptr<MonteCarloTreeNode> &n = iter.value();
-    all_moves_loosing &= n->IsLosingState();
+    if (!n->IsWinningState())
+      return;
   }
   explored_locker.unlock();
 
-  if (all_moves_loosing) {
-    is_winning_state_ = true;
-    Move lastMove = board_->GetLastMove();
-    for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-      if (!n.expired())
-        n.lock()->HasWinningMove(lastMove);
-    }
+  // all childs are winning -> this = losing state
+  is_losing_state_ = true;
+  Move lastMove = board_->GetLastMove();
+  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
+    if (!n.expired())
+      n.lock()->HasWinningMove(lastMove);
   }
 }

@@ -15,7 +15,19 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Selection() {
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Expansion(const std::shared_ptr<MonteCarloTreeNode> &selected_node) {
-  std::shared_ptr<MonteCarloTreeNode> next_node = selected_node->ExpandNextChild(node_collection_);
+  // get next move
+  Move next_move = selected_node->GetNextUnexploredMove();
+
+  // perform next move
+  const std::shared_ptr<Board> next_board = selected_node->GetBoard()->Copy();
+  next_board->MakeMove(next_move);
+
+  // get node for next move
+  std::shared_ptr<MonteCarloTreeNode> next_node = node_collection_->GetNode(next_board);
+
+  // add links
+  next_node->AddParent(selected_node);
+  selected_node->AddExploredMove(next_node);
 
   return next_node;
 }

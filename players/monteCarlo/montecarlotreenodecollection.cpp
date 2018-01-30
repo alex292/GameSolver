@@ -3,7 +3,7 @@
 #include <QDebug>
 
 MonteCarloTreeNodeCollection::MonteCarloTreeNodeCollection() {
-  nodes_.reserve(5000);
+  // nodes_.reserve(1000000);
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNode(const std::shared_ptr<const Board> &board) {
@@ -12,9 +12,9 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNo
   QWriteLocker locker(&nodes_lock_);
 
   QHash<ZobristValue, std::weak_ptr<MonteCarloTreeNode>>::const_iterator i = nodes_.find(zobrist_value);
-  const std::weak_ptr<MonteCarloTreeNode> &weakTreeNode = i.value();
 
   if (i != nodes_.end()) {
+    const std::weak_ptr<MonteCarloTreeNode> &weakTreeNode = i.value();
     std::shared_ptr<MonteCarloTreeNode> node = weakTreeNode.lock();
     if (node)
       return node;
@@ -23,7 +23,7 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNo
   const std::shared_ptr<MonteCarloTreeNode> node = std::make_shared<MonteCarloTreeNode>(board);
   nodes_.insert(zobrist_value, node);
 
-  if (nodes_.size() % 10000 == 0)
+  if (nodes_.size() % 50000 == 0)
     qDebug() << nodes_.size();
 
   return node;
