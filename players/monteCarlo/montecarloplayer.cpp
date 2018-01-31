@@ -4,10 +4,11 @@
 #include <QThread>
 #include <QTimer>
 
-MonteCarloPlayer::MonteCarloPlayer(int time_per_move, int num_threads)
+MonteCarloPlayer::MonteCarloPlayer(int time_per_move, int num_threads, bool use_pondering)
     : Player()
     , time_per_move_(time_per_move)
-    , num_threads_(num_threads) {
+    , num_threads_(num_threads)
+    , use_pondering_(use_pondering) {
   tree_ = std::make_shared<MonteCarloTree>();
 
   deadline_timer_ = std::make_shared<QDeadlineTimer>();
@@ -20,16 +21,33 @@ MonteCarloPlayer::MonteCarloPlayer(int time_per_move, int num_threads)
 }
 
 Move MonteCarloPlayer::GetNextMove(const std::shared_ptr<const Board> &board) {
+  // stop pondering
+  if (use_pondering_) {
+    deadline_timer_->setRemainingTime(0);
+    thread_pool_.waitForDone();
+  }
+
+  // explore
   tree_->SetRoot(board);
-
   deadline_timer_->setRemainingTime(time_per_move_);
-
   for (const std::shared_ptr<MonteCarloTreeExplorer> &treeExplorer : tree_explorers_)
     thread_pool_.start(treeExplorer.get());
-
   thread_pool_.waitForDone();
 
+  // find best move
   Move best_move = tree_->GetBestMove();
+
+  // make move (update tree root)
+  std::shared_ptr<Board> board_copy = board->Copy();
+  board_copy->MakeMove(best_move);
+  tree_->SetRoot(board_copy);
+
+  // start pondering
+  if (use_pondering_) {
+    deadline_timer_->setRemainingTime(-1);
+    for (const std::shared_ptr<MonteCarloTreeExplorer> &treeExplorer : tree_explorers_)
+      thread_pool_.start(treeExplorer.get());
+  }
 
   return best_move;
 }
