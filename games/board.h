@@ -20,6 +20,7 @@ class Board {
 
   virtual void GetPossibleMoves(std::vector<Move> &moves) const = 0;
   virtual bool IsMovePossible(Move move) const = 0;
+  virtual bool HasRemainingMoves() = 0;
 
   void MakeMove(Move move);
   virtual PositionIndex PerformMove(Move move) = 0;
@@ -32,8 +33,6 @@ class Board {
   bool IsTie() const { return is_game_over_ && !is_win_white_ && !is_win_black_; }
 
   ZobristValue GetZobristValue() const { return zobrist_value_; }
-  int GetNumMovesMade() const { return move_sequence_.size(); }
-  Move GetLastMove() const { return move_sequence_.back(); }
 
  protected:
   bool is_turn_white_ = true;
@@ -42,8 +41,6 @@ class Board {
   bool is_win_black_ = false;
 
   ZobristValue zobrist_value_ = 0;
-
-  std::vector<Move> move_sequence_;
 
   std::vector<PositionValue> positions_;
 

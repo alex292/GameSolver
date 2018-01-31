@@ -9,12 +9,12 @@
 
 #include "games/board.h"
 #include "montecarlotreenodecollection.h"
+
 class MonteCarloTreeNodeCollection;
 
-class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNode> {
+class MonteCarloTreeNode {
  public:
   MonteCarloTreeNode(const std::shared_ptr<const Board> &board);
-  MonteCarloTreeNode(const std::shared_ptr<const Board> &board, const std::shared_ptr<MonteCarloTreeNode> &parent);
 
   ZobristValue GetZobristValue() const { return board_->GetZobristValue(); }
 
@@ -24,9 +24,9 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
   double GetUCTValue(unsigned int num_parent_evaluations);
 
   Move GetNextUnexploredMove();
-  void AddExploredMove(const std::shared_ptr<MonteCarloTreeNode> &node);
+  void AddExploredMove(Move move, const std::shared_ptr<MonteCarloTreeNode> &node);
 
-  void AddParent(const std::shared_ptr<MonteCarloTreeNode> &parent);
+  void AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode> &parent);
   void RemoveExpiredParents();
 
   void StartBackpropagation(const std::shared_ptr<const Board> &playout_board);
@@ -51,7 +51,8 @@ class MonteCarloTreeNode : public std::enable_shared_from_this<MonteCarloTreeNod
  protected:
   std::shared_ptr<const Board> board_;
 
-  std::vector<std::weak_ptr<MonteCarloTreeNode>> parents_;
+  QReadWriteLock parents_lock_;
+  QHash<Move, std::weak_ptr<MonteCarloTreeNode>> parents_;
 
   std::atomic<unsigned int> num_evaluations_;
   std::atomic<unsigned int> num_wins_;

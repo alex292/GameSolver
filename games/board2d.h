@@ -12,6 +12,7 @@ class Board2D : public virtual Board {
 
   void GetPossibleMoves(std::vector<Move> &moves) const;
   virtual bool IsMovePossible(Move move) const;
+  bool HasRemainingMoves();
 
  protected:
   const int size_x_;

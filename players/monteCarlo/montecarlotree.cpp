@@ -26,8 +26,8 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTree::Expansion(const std::s
   std::shared_ptr<MonteCarloTreeNode> next_node = node_collection_->GetNode(next_board);
 
   // add links
-  next_node->AddParent(selected_node);
-  selected_node->AddExploredMove(next_node);
+  next_node->AddParent(next_move, selected_node);
+  selected_node->AddExploredMove(next_move, next_node);
 
   return next_node;
 }

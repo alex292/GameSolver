@@ -13,7 +13,7 @@ std::shared_ptr<std::vector<ZobristValue>> ZobristGenerator::GenerateUniqueZobri
     ZobristValue value;
     do {
       value = zobrist_distribution_(random_engine_);
-    } while (used_zobrist_values_.contains(value));
+    } while (used_zobrist_values_.contains(value) && value != 0);
     values->push_back(value);
     used_zobrist_values_.insert(value);
   }

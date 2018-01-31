@@ -21,7 +21,7 @@ void ConnectedRowsBoard::CheckForGameOver(PositionIndex last_position) {
   }
 
   // check for tie
-  if (move_sequence_.size() == positions_.size()) {
+  if (!HasRemainingMoves()) {
     is_game_over_ = true;
     is_win_white_ = false;
     is_win_black_ = false;

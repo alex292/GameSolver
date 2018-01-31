@@ -11,14 +11,8 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNo
 
   QWriteLocker locker(&nodes_lock_);
 
-  QHash<ZobristValue, std::weak_ptr<MonteCarloTreeNode>>::const_iterator i = nodes_.find(zobrist_value);
-
-  if (i != nodes_.end()) {
-    const std::weak_ptr<MonteCarloTreeNode> &weakTreeNode = i.value();
-    std::shared_ptr<MonteCarloTreeNode> node = weakTreeNode.lock();
-    if (node)
-      return node;
-  }
+  if (nodes_.contains(zobrist_value))
+    return nodes_[zobrist_value].lock();
 
   const std::shared_ptr<MonteCarloTreeNode> node = std::make_shared<MonteCarloTreeNode>(board);
   nodes_.insert(zobrist_value, node);
@@ -34,33 +28,26 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::GetNode(
 
   QReadLocker locker(&nodes_lock_);
 
-  QHash<ZobristValue, std::weak_ptr<MonteCarloTreeNode>>::const_iterator i = nodes_.find(zobrist_value);
-
-  const std::weak_ptr<MonteCarloTreeNode> &weak_tree_node = i.value();
-
-  if (i == nodes_.end() || weak_tree_node.expired()) {
+  if (!nodes_.contains(zobrist_value)) {
     locker.unlock();
     return CreateNode(board);
   }
 
-  if (board->GetNumMovesMade() != weak_tree_node.lock()->GetBoard()->GetNumMovesMade())
-    qDebug() << "mismatch";
-
-  return weak_tree_node.lock();
+  return nodes_[zobrist_value].lock();
 }
 
 void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
   QWriteLocker locker(&nodes_lock_);
 
-  qDebug() << "numNodes:" << nodes_.size();
+  int num_before = nodes_.size();
   QMutableHashIterator<ZobristValue, std::weak_ptr<MonteCarloTreeNode>> iter(nodes_);
   while (iter.hasNext()) {
     iter.next();
     std::weak_ptr<MonteCarloTreeNode> &node = iter.value();
     if (node.expired())
-      nodes_.remove(iter.key());
+      iter.remove();
     else
       node.lock()->RemoveExpiredParents();
   }
-  // qDebug() << "numNodes:" << nodes_.size();
+  // qDebug() << "nodes" << num_before << nodes_.size();
 }

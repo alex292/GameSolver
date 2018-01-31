@@ -40,3 +40,15 @@ void Board2D::GetPossibleMoves(std::vector<Move> &moves) const {
 bool Board2D::IsMovePossible(Move move) const {
   return (positions_[move] == POSITION_VALUE_FREE);
 }
+
+bool Board2D::HasRemainingMoves() {
+  if (is_game_over_)
+    return false;
+
+  for (int i = 0; i < num_moves_; ++i) {
+    if (IsMovePossible(i))
+      return true;
+  }
+
+  return false;
+}

@@ -16,16 +16,6 @@ MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board
     board_->GetPossibleMoves(unexplored_moves_);
 }
 
-MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board, const std::shared_ptr<MonteCarloTreeNode> &parent)
-    : board_(board) {
-  parents_.push_back(parent);
-  num_evaluations_ = 0;
-  num_wins_ = 0;
-
-  if (!board_->IsGameOver())
-    board_->GetPossibleMoves(unexplored_moves_);
-}
-
 bool MonteCarloTreeNode::IsLeafNode() {
   QMutexLocker locker_unexplored(&unexplored_moves_mutex_);
   if (!unexplored_moves_.empty())
@@ -51,6 +41,8 @@ bool MonteCarloTreeNode::IsExpandable() {
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChild() {
+  QReadLocker locker(&explored_moves_lock_);
+
   if (is_winning_state_)
     return explored_moves_[winning_move_];
 
@@ -62,7 +54,6 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
   std::shared_ptr<MonteCarloTreeNode> next_node;
   double best_value = -1;
 
-  QReadLocker locker(&explored_moves_lock_);
   QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(explored_moves_);
   while (iter.hasNext()) {
     iter.next();
@@ -97,9 +88,8 @@ Move MonteCarloTreeNode::GetNextUnexploredMove() {
   return next_move;
 }
 
-void MonteCarloTreeNode::AddExploredMove(const std::shared_ptr<MonteCarloTreeNode> &node) {
+void MonteCarloTreeNode::AddExploredMove(Move move, const std::shared_ptr<MonteCarloTreeNode> &node) {
   // add explored move
-  Move move = node->GetBoard()->GetLastMove();
   QWriteLocker locker(&explored_moves_lock_);
   explored_moves_.insert(move, node);
 
@@ -111,12 +101,19 @@ void MonteCarloTreeNode::AddExploredMove(const std::shared_ptr<MonteCarloTreeNod
     HasWinningMove(move);
 }
 
-void MonteCarloTreeNode::AddParent(const std::shared_ptr<MonteCarloTreeNode> &parent) {
-  parents_.push_back(parent);
+void MonteCarloTreeNode::AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode> &parent) {
+  QWriteLocker locker(&parents_lock_);
+  parents_.insert(move, parent);
 }
 
 void MonteCarloTreeNode::RemoveExpiredParents() {
-  parents_.erase(remove_if(parents_.begin(), parents_.end(), [](const std::weak_ptr<const MonteCarloTreeNode> &p) { return p.expired(); }), parents_.end());
+  QWriteLocker locker(&parents_lock_);
+  QMutableHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
+  while (iter.hasNext()) {
+    iter.next();
+    if (iter.value().expired())
+      iter.remove();
+  }
 }
 
 void MonteCarloTreeNode::StartBackpropagation(const std::shared_ptr<const Board> &playout_board) {
@@ -139,9 +136,11 @@ void MonteCarloTreeNode::BackpropagateWin(QSet<ZobristValue> &propagated_nodes) 
   num_evaluations_++;
   num_wins_++;
 
-  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-    if (!n.expired())
-      n.lock()->BackpropagateLoss(propagated_nodes);
+  QReadLocker locker(&parents_lock_);
+  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
+  while (iter.hasNext()) {
+    iter.next();
+    iter.value().lock()->BackpropagateLoss(propagated_nodes);
   }
 }
 
@@ -153,9 +152,11 @@ void MonteCarloTreeNode::BackpropagateLoss(QSet<ZobristValue> &propagated_nodes)
 
   num_evaluations_++;
 
-  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-    if (!n.expired())
-      n.lock()->BackpropagateWin(propagated_nodes);
+  QReadLocker locker(&parents_lock_);
+  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
+  while (iter.hasNext()) {
+    iter.next();
+    iter.value().lock()->BackpropagateWin(propagated_nodes);
   }
 }
 
@@ -168,9 +169,11 @@ void MonteCarloTreeNode::BackpropagateTie(QSet<ZobristValue> &propagated_nodes) 
   num_evaluations_++;
   num_ties_++;
 
-  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-    if (!n.expired())
-      n.lock()->BackpropagateTie(propagated_nodes);
+  QReadLocker locker(&parents_lock_);
+  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
+  while (iter.hasNext()) {
+    iter.next();
+    iter.value().lock()->BackpropagateTie(propagated_nodes);
   }
 }
 
@@ -207,9 +210,12 @@ void MonteCarloTreeNode::HasWinningMove(Move winning_move) {
 
   is_winning_state_ = true;
   winning_move_ = winning_move;
-  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-    if (!n.expired())
-      n.lock()->HasLosingMove();
+
+  QReadLocker parents_locker(&parents_lock_);
+  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
+  while (iter.hasNext()) {
+    iter.next();
+    iter.value().lock()->HasLosingMove();
   }
 }
 
@@ -227,10 +233,10 @@ void MonteCarloTreeNode::HasLosingMove() {
 
   // check if any child nodes are not winning
   QReadLocker explored_locker(&explored_moves_lock_);
-  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(explored_moves_);
-  while (iter.hasNext()) {
-    iter.next();
-    const std::shared_ptr<MonteCarloTreeNode> &n = iter.value();
+  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter_explored(explored_moves_);
+  while (iter_explored.hasNext()) {
+    iter_explored.next();
+    const std::shared_ptr<MonteCarloTreeNode> &n = iter_explored.value();
     if (!n->IsWinningState())
       return;
   }
@@ -238,9 +244,11 @@ void MonteCarloTreeNode::HasLosingMove() {
 
   // all childs are winning -> this = losing state
   is_losing_state_ = true;
-  Move lastMove = board_->GetLastMove();
-  for (const std::weak_ptr<MonteCarloTreeNode> &n : parents_) {
-    if (!n.expired())
-      n.lock()->HasWinningMove(lastMove);
+
+  QReadLocker parents_locker(&parents_lock_);
+  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter_parents(parents_);
+  while (iter_parents.hasNext()) {
+    iter_parents.next();
+    iter_parents.value().lock()->HasWinningMove(iter_parents.key());
   }
 }
