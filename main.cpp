@@ -26,7 +26,7 @@ int GetUserInputString(const QString &command, const std::vector<QString> &possi
   QString word;
   bool is_number;
   do {
-    std::cout << command.toStdString() << " [0-" << (possibleValues.size() - 1) << "]:" << std::endl;
+    std::cout << command.toStdString() << " [0 to " << (possibleValues.size() - 1) << "]:" << std::endl;
     for (int i = 0; i < possibleValues.size(); ++i)
       std::cout << "\t(" << i << ") " << possibleValues[i].toStdString() << std::endl;
 
@@ -45,7 +45,7 @@ int GetUserInputInt(const QString &command, int min, int max) {
   QString word;
   bool is_number;
   do {
-    std::cout << command.toStdString() << " [" << min << "-" << max << "]:";
+    std::cout << command.toStdString() << " [" << min << " to " << max << "]:";
 
     QTextStream qtin(stdin);
     qtin >> word;
@@ -79,29 +79,35 @@ std::shared_ptr<Board> CreateBoard() {
     return std::make_shared<ConnectFour3DBoard>();
 }
 
-std::shared_ptr<Player> CreatePlayer(const QString &color) {
-  int index = GetUserInputString("Choose player " + color, {"human", "random", "monte-carlo"});
+std::shared_ptr<Player> CreatePlayer(const QString &color, const std::shared_ptr<Player> &other_player = nullptr) {
+  std::vector<QString> player_names{"human", "random", "monte-carlo"};
+  if (other_player)
+    player_names.push_back("copy");
+
+  int index = GetUserInputString("Choose player " + color, player_names);
   if (index == 0) {
     return std::make_shared<HumanPlayer>();
   } else if (index == 1) {
     return std::make_shared<RandomPlayer>();
-  } else {
-    int time_per_move = GetUserInputInt("time per move (ms)", 1, std::numeric_limits<int>::max());
+  } else if (index == 2) {
+    int time_per_move = GetUserInputInt("time per move (ms)", -1, std::numeric_limits<int>::max());
     int num_threads = GetUserInputInt("num threads", 1, QThread::idealThreadCount());
     bool use_pondering = GetUserInputBool("use pondering");
     return std::make_shared<MonteCarloPlayer>(time_per_move, num_threads, use_pondering);
+  } else {
+    return other_player;
   }
 }
 
 int main(int argc, char *argv[]) {
-  //  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
-  std::shared_ptr<Board> board = CreateBoard();
+  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
+  //  std::shared_ptr<Board> board = CreateBoard();
 
   //  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(), false);
   //  std::shared_ptr<Player> player_black = player_white;
   // std::make_shared<MonteCarloPlayer>(1000, QThread::idealThreadCount(), false);
   std::shared_ptr<Player> player_white = CreatePlayer("white");
-  std::shared_ptr<Player> player_black = CreatePlayer("black");
+  std::shared_ptr<Player> player_black = CreatePlayer("black", player_white);
 
   Game game(board, player_white, player_black);
   game.Run();
