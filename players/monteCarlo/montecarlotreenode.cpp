@@ -45,10 +45,10 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
   QReadLocker locker(&explored_moves_lock_);
 
   if (is_winning_state_)
-    return explored_moves_[winning_move_];
+    return explored_moves_.value(winning_move_);
 
   if (is_losing_state_)
-    return explored_moves_.begin().value();
+    return explored_moves_.constBegin().value();
 
   unsigned int num_parent_evaluations = num_evaluations_;
 
