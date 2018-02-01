@@ -4,8 +4,8 @@
 #include <QThread>
 
 MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadline_timer)
-    : tree_(tree)
-    , deadline_timer_(deadline_timer) {}
+    : deadline_timer_(deadline_timer)
+    , tree_(tree) {}
 
 void MonteCarloTreeExplorer::run() {
   const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();

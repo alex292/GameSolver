@@ -1,8 +1,8 @@
 #include "randomplayer.h"
 
 RandomPlayer::RandomPlayer()
-    : random_engine_(random_device_())
-    , Player() {}
+    : Player()
+    , random_engine_(random_device_()) {}
 
 Move RandomPlayer::GetNextMove(const std::shared_ptr<const Board> &board) {
   possible_moves_.clear();

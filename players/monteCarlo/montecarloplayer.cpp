@@ -6,8 +6,8 @@
 
 MonteCarloPlayer::MonteCarloPlayer(int time_per_move, int num_threads, bool use_pondering)
     : Player()
-    , time_per_move_(time_per_move)
     , num_threads_(num_threads)
+    , time_per_move_(time_per_move)
     , use_pondering_(use_pondering) {
   tree_ = std::make_shared<MonteCarloTree>();
 
