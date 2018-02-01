@@ -20,6 +20,7 @@ bool MonteCarloTreeNode::IsLeafNode() {
   QMutexLocker locker_unexplored(&unexplored_moves_mutex_);
   if (!unexplored_moves_.empty())
     return true;
+  locker_unexplored.unlock();
 
   QReadLocker locker_explored(&explored_moves_lock_);
   if (explored_moves_.empty())
