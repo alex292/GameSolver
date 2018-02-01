@@ -9,7 +9,7 @@ MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloT
 
 void MonteCarloTreeExplorer::run() {
   const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
-  std::vector<const std::shared_ptr<MonteCarloTreeNode>> node_path;
+  std::vector<std::shared_ptr<MonteCarloTreeNode>> node_path;
 
   while (!deadline_timer_->hasExpired() && !root->IsResultDecided()) {
     node_path.clear();
@@ -32,7 +32,7 @@ const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(const s
   return board;
 }
 
-void MonteCarloTreeExplorer::BackpropagateResult(const std::vector<const std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board) {
+void MonteCarloTreeExplorer::BackpropagateResult(const std::vector<std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board) {
   for (const std::shared_ptr<MonteCarloTreeNode> &node : node_path) {
     const std::shared_ptr<const Board> &board = node->GetBoard();
     if ((board->IsTurnWhite() && playout_board->IsWinWhite()) || (!board->IsTurnWhite() && playout_board->IsWinBlack()))

@@ -12,8 +12,8 @@ class MonteCarloTree {
 
   const std::shared_ptr<MonteCarloTreeNode> GetTreeRoot() const { return root_; }
 
-  void Selection(std::vector<const std::shared_ptr<MonteCarloTreeNode>> &nodes);
-  void Expansion(std::vector<const std::shared_ptr<MonteCarloTreeNode>> &nodes);
+  void Selection(std::vector<std::shared_ptr<MonteCarloTreeNode>> &nodes);
+  void Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode>> &nodes);
 
   Move GetBestMove();
   void SetRoot(const std::shared_ptr<const Board> &board);

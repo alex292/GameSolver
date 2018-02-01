@@ -22,7 +22,7 @@ class MonteCarloTreeExplorer : public QRunnable {
 
   const std::shared_ptr<const Board> RandomPlayout(const std::shared_ptr<const MonteCarloTreeNode> &node);
 
-  void BackpropagateResult(const std::vector<const std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board);
+  void BackpropagateResult(const std::vector<std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board);
 };
 
 #endif  // MONTECARLOTREEEXPLORER_H

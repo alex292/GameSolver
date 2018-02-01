@@ -6,9 +6,9 @@ MonteCarloTree::MonteCarloTree() {
   node_collection_ = std::make_shared<MonteCarloTreeNodeCollection>();
 }
 
-void MonteCarloTree::Selection(std::vector<const std::shared_ptr<MonteCarloTreeNode>> &nodes) {
-  nodes.push_back(root_);
+void MonteCarloTree::Selection(std::vector<std::shared_ptr<MonteCarloTreeNode> > &nodes) {
   std::shared_ptr<MonteCarloTreeNode> node = root_;
+  nodes.push_back(node);
 
   while (!node->IsLeafNode()) {
     node = node->SelectNextBestChild();
@@ -16,7 +16,7 @@ void MonteCarloTree::Selection(std::vector<const std::shared_ptr<MonteCarloTreeN
   }
 }
 
-void MonteCarloTree::Expansion(std::vector<const std::shared_ptr<MonteCarloTreeNode>> &nodes) {
+void MonteCarloTree::Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode> > &nodes) {
   const std::shared_ptr<MonteCarloTreeNode> &node = nodes.back();
 
   if (!node->IsExpandable())
