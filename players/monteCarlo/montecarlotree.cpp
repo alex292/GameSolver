@@ -7,8 +7,8 @@ MonteCarloTree::MonteCarloTree() {
 }
 
 void MonteCarloTree::Selection(std::vector<const std::shared_ptr<MonteCarloTreeNode>> &nodes) {
+  nodes.push_back(root_);
   std::shared_ptr<MonteCarloTreeNode> node = root_;
-  nodes.push_back(node);
 
   while (!node->IsLeafNode()) {
     node = node->SelectNextBestChild();
