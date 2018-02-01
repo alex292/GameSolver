@@ -1,7 +1,7 @@
 #ifndef TICTACTOEBOARD_H
 #define TICTACTOEBOARD_H
 
-#include "games/board2d.h".h "
+#include "games/board2d.h"
 #include "games/connectedrowsboard.h"
 
 class TicTacToeBoard : public Board2D, public ConnectedRowsBoard {
