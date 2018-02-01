@@ -70,7 +70,7 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
   return next_node;
 }
 
-double MonteCarloTreeNode::GetUCTValue(unsigned int num_parent_evaluations) {
+double MonteCarloTreeNode::GetUCTValue(unsigned int num_parent_evaluations) const {
   if (num_evaluations_ == 0)
     return 0;
 
@@ -117,67 +117,6 @@ void MonteCarloTreeNode::RemoveExpiredParents() {
   }
 }
 
-void MonteCarloTreeNode::StartBackpropagation(const std::shared_ptr<const Board> &playout_board) {
-  QSet<ZobristValue> propagated_nodes;
-
-  if ((board_->IsTurnWhite() && playout_board->IsWinWhite()) || (!board_->IsTurnWhite() && playout_board->IsWinBlack()))
-    BackpropagateLoss(propagated_nodes);
-  else if ((board_->IsTurnWhite() && playout_board->IsWinBlack()) || (!board_->IsTurnWhite() && playout_board->IsWinWhite()))
-    BackpropagateWin(propagated_nodes);
-  else
-    BackpropagateTie(propagated_nodes);
-}
-
-void MonteCarloTreeNode::BackpropagateWin(QSet<ZobristValue> &propagated_nodes) {
-  ZobristValue zobrist_value = board_->GetZobristValue();
-  if (propagated_nodes.contains(zobrist_value))
-    return;
-  propagated_nodes.insert(zobrist_value);
-
-  num_evaluations_++;
-  num_wins_++;
-
-  QReadLocker locker(&parents_lock_);
-  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
-  while (iter.hasNext()) {
-    iter.next();
-    iter.value().lock()->BackpropagateLoss(propagated_nodes);
-  }
-}
-
-void MonteCarloTreeNode::BackpropagateLoss(QSet<ZobristValue> &propagated_nodes) {
-  ZobristValue zobrist_value = board_->GetZobristValue();
-  if (propagated_nodes.contains(zobrist_value))
-    return;
-  propagated_nodes.insert(zobrist_value);
-
-  num_evaluations_++;
-
-  QReadLocker locker(&parents_lock_);
-  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
-  while (iter.hasNext()) {
-    iter.next();
-    iter.value().lock()->BackpropagateWin(propagated_nodes);
-  }
-}
-
-void MonteCarloTreeNode::BackpropagateTie(QSet<ZobristValue> &propagated_nodes) {
-  ZobristValue zobrist_value = board_->GetZobristValue();
-  if (propagated_nodes.contains(zobrist_value))
-    return;
-  propagated_nodes.insert(zobrist_value);
-
-  num_evaluations_++;
-  num_ties_++;
-
-  QReadLocker locker(&parents_lock_);
-  QHashIterator<Move, std::weak_ptr<MonteCarloTreeNode>> iter(parents_);
-  while (iter.hasNext()) {
-    iter.next();
-    iter.value().lock()->BackpropagateTie(propagated_nodes);
-  }
-}
-
 Move MonteCarloTreeNode::GetBestMove() {
   if (is_winning_state_)
     return winning_move_;
@@ -197,7 +136,7 @@ Move MonteCarloTreeNode::GetBestMove() {
       best_move_num_evaluations = numEvaluations;
     }
 
-    // qDebug() << "###" << iter.key() << iter.value()->getNumWins() << iter.value()->getNumEvaluations() << (iter.value()->getNumWins() / (double) iter.value()->getNumEvaluations());
+    // qDebug() << "###" << iter.key() << "\t" << iter.value()->GetNumWins() << "\t" << iter.value()->GetNumEvaluations() << "\t" << (iter.value()->GetNumWins() / (double)iter.value()->GetNumEvaluations());
   }
 
   return best_move;
@@ -252,4 +191,18 @@ void MonteCarloTreeNode::HasLosingMove() {
     iter_parents.next();
     iter_parents.value().lock()->HasWinningMove(iter_parents.key());
   }
+}
+
+void MonteCarloTreeNode::AddWin() {
+  num_evaluations_++;
+  num_wins_++;
+}
+
+void MonteCarloTreeNode::AddLoss() {
+  num_evaluations_++;
+}
+
+void MonteCarloTreeNode::AddTie() {
+  num_evaluations_++;
+  num_ties_++;
 }

@@ -9,20 +9,14 @@ MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloT
 
 void MonteCarloTreeExplorer::run() {
   const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
+  std::vector<const std::shared_ptr<MonteCarloTreeNode>> node_path;
 
   while (!deadline_timer_->hasExpired() && !root->IsResultDecided()) {
-    // selection
-    std::shared_ptr<MonteCarloTreeNode> node = tree_->Selection();
-
-    // expansion
-    if (node->IsExpandable())
-      node = tree_->Expansion(node);
-
-    // random playout
-    const std::shared_ptr<const Board> playout_board = RandomPlayout(node);
-
-    // backpropagation
-    node->StartBackpropagation(playout_board);
+    node_path.clear();
+    tree_->Selection(node_path);
+    tree_->Expansion(node_path);
+    const std::shared_ptr<const Board> playout_board = RandomPlayout(node_path.back());
+    BackpropagateResult(node_path, playout_board);
   }
 }
 
@@ -36,4 +30,16 @@ const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(const s
     board->MakeMove(move);
   }
   return board;
+}
+
+void MonteCarloTreeExplorer::BackpropagateResult(const std::vector<const std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board) {
+  for (const std::shared_ptr<MonteCarloTreeNode> &node : node_path) {
+    const std::shared_ptr<const Board> &board = node->GetBoard();
+    if ((board->IsTurnWhite() && playout_board->IsWinWhite()) || (!board->IsTurnWhite() && playout_board->IsWinBlack()))
+      node->AddLoss();
+    else if ((board->IsTurnWhite() && playout_board->IsWinBlack()) || (!board->IsTurnWhite() && playout_board->IsWinWhite()))
+      node->AddWin();
+    else
+      node->AddTie();
+  }
 }

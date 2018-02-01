@@ -21,18 +21,13 @@ class MonteCarloTreeNode {
   bool IsLeafNode();
   bool IsExpandable();
   const std::shared_ptr<MonteCarloTreeNode> SelectNextBestChild();
-  double GetUCTValue(unsigned int num_parent_evaluations);
+  double GetUCTValue(unsigned int num_parent_evaluations) const;
 
   Move GetNextUnexploredMove();
   void AddExploredMove(Move move, const std::shared_ptr<MonteCarloTreeNode> &node);
 
   void AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode> &parent);
   void RemoveExpiredParents();
-
-  void StartBackpropagation(const std::shared_ptr<const Board> &playout_board);
-  void BackpropagateWin(QSet<ZobristValue> &propagated_nodes);
-  void BackpropagateLoss(QSet<ZobristValue> &propagated_nodes);
-  void BackpropagateTie(QSet<ZobristValue> &propagated_nodes);
 
   const std::shared_ptr<const Board> GetBoard() const { return board_; }
 
@@ -47,6 +42,10 @@ class MonteCarloTreeNode {
 
   void HasWinningMove(Move winning_move);
   void HasLosingMove();
+
+  void AddWin();
+  void AddLoss();
+  void AddTie();
 
  protected:
   std::shared_ptr<const Board> board_;

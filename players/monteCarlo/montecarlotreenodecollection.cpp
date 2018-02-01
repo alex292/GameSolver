@@ -17,8 +17,8 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNo
   const std::shared_ptr<MonteCarloTreeNode> node = std::make_shared<MonteCarloTreeNode>(board);
   nodes_.insert(zobrist_value, node);
 
-  if (nodes_.size() % 50000 == 0)
-    qDebug() << nodes_.size();
+  /*if (nodes_.size() % 100000 == 0)
+    qDebug() << "nodes:" << nodes_.size();*/
 
   return node;
 }
@@ -49,5 +49,5 @@ void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
     else
       node.lock()->RemoveExpiredParents();
   }
-  // qDebug() << "nodes" << num_before << nodes_.size();
+  qDebug() << "nodes:" << num_before << "->" << nodes_.size();
 }
