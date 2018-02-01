@@ -4,7 +4,6 @@
 #include <QReadWriteLock>
 
 #include "montecarlotreenode.h"
-class MonteCarloTreeNode;
 
 class MonteCarloTreeNodeCollection {
  public:

@@ -8,9 +8,6 @@
 #include <QSet>
 
 #include "games/board.h"
-#include "montecarlotreenodecollection.h"
-
-class MonteCarloTreeNodeCollection;
 
 class MonteCarloTreeNode {
  public:
