@@ -40,6 +40,9 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::GetNode(
 void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
   QWriteLocker locker(&nodes_lock_);
 
+  QElapsedTimer timer;
+  timer.start();
+
   int num_before = nodes_.size();
   QMutableHashIterator<ZobristValue, std::weak_ptr<MonteCarloTreeNode>> iter(nodes_);
   while (iter.hasNext()) {
@@ -51,5 +54,5 @@ void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
       node.lock()->RemoveExpiredParents();
   }
 
-  qDebug() << "nodes:" << num_before << "->" << nodes_.size();
+  qDebug() << "\tnodes:" << num_before << "->" << nodes_.size() << "(cleanup time:" << timer.elapsed() << "ms)";
 }
