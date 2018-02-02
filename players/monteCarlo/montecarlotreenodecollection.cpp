@@ -50,13 +50,13 @@ void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
     std::weak_ptr<MonteCarloTreeNode> &node = iter.value();
     if (node.expired())
       iter.remove();
-    else
-      node.lock()->RemoveExpiredParents();
+    /*else
+      node.lock()->RemoveExpiredParents();*/
   }
 
   qint64 time1 = timer.restart();
 
-  // QtConcurrent::blockingMap(nodes_.begin(), nodes_.end(), [](const std::weak_ptr<MonteCarloTreeNode> &node) { node.lock()->RemoveExpiredParents(); });
+  QtConcurrent::blockingMap(nodes_.begin(), nodes_.end(), [](const std::weak_ptr<MonteCarloTreeNode> &node) { node.lock()->RemoveExpiredParents(); });
 
   qDebug() << "timer" << time1 << timer.elapsed();
 
