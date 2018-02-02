@@ -54,13 +54,12 @@ class MonteCarloTreeNode {
   std::atomic<unsigned int> num_wins_;
   std::atomic<unsigned int> num_ties_;
 
-  QMutex unexplored_moves_mutex_;
+  QReadWriteLock unexplored_moves_lock_;
   std::vector<Move> unexplored_moves_;
 
   QReadWriteLock explored_moves_lock_;
   QHash<Move, std::shared_ptr<MonteCarloTreeNode>> explored_moves_;
 
-  QMutex result_decided_mutex_;
   std::atomic<bool> is_losing_state_ = {false};
   std::atomic<bool> is_winning_state_ = {false};
   std::atomic<Move> winning_move_;
