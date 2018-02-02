@@ -1,6 +1,7 @@
 #include "montecarlotreenodecollection.h"
 
 #include <QDebug>
+#include <QtConcurrent>
 
 MonteCarloTreeNodeCollection::MonteCarloTreeNodeCollection() {
   // nodes_.reserve(1000000);
@@ -39,6 +40,9 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::GetNode(
 void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
   QWriteLocker locker(&nodes_lock_);
 
+  QElapsedTimer timer;
+  timer.start();
+
   int num_before = nodes_.size();
   QMutableHashIterator<ZobristValue, std::weak_ptr<MonteCarloTreeNode>> iter(nodes_);
   while (iter.hasNext()) {
@@ -49,5 +53,12 @@ void MonteCarloTreeNodeCollection::RemoveExpiredNodes() {
     else
       node.lock()->RemoveExpiredParents();
   }
+
+  qint64 time1 = timer.restart();
+
+  // QtConcurrent::blockingMap(nodes_.begin(), nodes_.end(), [](const std::weak_ptr<MonteCarloTreeNode> &node) { node.lock()->RemoveExpiredParents(); });
+
+  qDebug() << "timer" << time1 << timer.elapsed();
+
   qDebug() << "nodes:" << num_before << "->" << nodes_.size();
 }
