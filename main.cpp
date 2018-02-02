@@ -100,7 +100,7 @@ std::shared_ptr<Player> CreatePlayer(const QString &color, const std::shared_ptr
 }
 
 int main(int argc, char *argv[]) {
-  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
+  //  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
   std::shared_ptr<Board> board = CreateBoard();
 
   //  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(), false);
