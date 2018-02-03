@@ -17,11 +17,6 @@ class Board2D : public virtual Board {
  protected:
   const int size_x_;
   const int size_y_;
-
-  const int num_moves_;
-  const int num_positions_;
-
-  Board2D(int size_x, int size_y, int num_moves, int num_positions);
 };
 
 #endif  // BOARD2D_H

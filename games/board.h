@@ -5,15 +5,17 @@
 #include <memory>
 #include <vector>
 
+#include <QBitArray>
 #include <QSet>
 #include <QSize>
 #include <QString>
+#include <QVector>
 
 #include "types.h"
 
 class Board {
  public:
-  Board();
+  Board(int num_positions, int num_moves);
 
   virtual QString MoveToReadableMove(Move move) const = 0;
   virtual Move ReadableMoveToMove(const QString &readable_move, bool &valid) const = 0;
@@ -35,6 +37,9 @@ class Board {
   ZobristValue GetZobristValue() const { return zobrist_value_; }
 
  protected:
+  const int num_positions_;
+  const int num_moves_;
+
   bool is_turn_white_ = true;
   bool is_game_over_ = false;
   bool is_win_white_ = false;
@@ -42,7 +47,8 @@ class Board {
 
   ZobristValue zobrist_value_ = 0;
 
-  std::vector<PositionValue> positions_;
+  QBitArray positions_white_;
+  QBitArray positions_black_;
 
   virtual void CheckForGameOver(PositionIndex last_position) = 0;
 };

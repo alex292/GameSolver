@@ -5,7 +5,8 @@
 #include "games/zobristgenerator.h"
 
 TicTacToeBoard::TicTacToeBoard()
-    : Board2D(3, 3)
+    : Board(9, 9)
+    , Board2D(3, 3)
     , ConnectedRowsBoard() {
   // zobrist values
   ZobristGenerator &zobrist_generator = ZobristGenerator::GetInstance();
@@ -21,10 +22,10 @@ PositionIndex TicTacToeBoard::PerformMove(Move move) {
 
   // set position
   if (is_turn_white_) {
-    positions_[position] = POSITION_VALUE_WHITE;
+    positions_white_[move] = true;
     zobrist_value_ ^= zobrist_values_positions_white_->at(position);
   } else {
-    positions_[position] = POSITION_VALUE_BLACK;
+    positions_black_[move] = true;
     zobrist_value_ ^= zobrist_values_positions_black_->at(position);
   }
 

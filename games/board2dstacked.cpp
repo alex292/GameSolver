@@ -1,7 +1,8 @@
 #include "board2dstacked.h"
 
 Board2DStacked::Board2DStacked(int size_x, int size_y, int size_z)
-    : Board2D(size_x, size_y, size_x * size_y, size_x * size_y * size_z)
+    : Board(size_x * size_y * size_z, size_x * size_y)
+    , Board2D(size_x, size_y)
     , size_z_(size_z) {
   stack_heights_ = std::vector<unsigned char>(num_moves_, 0);
 }

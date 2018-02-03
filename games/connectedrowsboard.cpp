@@ -1,16 +1,22 @@
 #include "connectedrowsboard.h"
 
+#include <QDebug>
+
 ConnectedRowsBoard::ConnectedRowsBoard() {}
 
 void ConnectedRowsBoard::CheckForGameOver(PositionIndex last_position) {
   // check for win
-  PositionValue desired_position_value = (is_turn_white_) ? POSITION_VALUE_WHITE : POSITION_VALUE_BLACK;
+  QBitArray *positions = (is_turn_white_) ? &positions_white_ : &positions_black_;
   for (unsigned char row : positions_to_rows_->at(last_position)) {
     const std::vector<PositionIndex> &row_positions = rows_to_positions_->at(row);
 
     bool all_desired = true;
-    for (int i = 0; i < row_positions.size() && all_desired; ++i)
-      all_desired = (positions_[row_positions[i]] == desired_position_value);
+    for (int i = 0; i < row_positions.size(); ++i) {
+      if (!positions->testBit(row_positions[i])) {
+        all_desired = false;
+        break;
+      }
+    }
 
     if (all_desired) {
       is_game_over_ = true;
@@ -35,7 +41,7 @@ void ConnectedRowsBoard::InitConnectedRows() {
 }
 
 void ConnectedRowsBoard::GeneratePositionsToRows() {
-  positions_to_rows_ = std::make_shared<std::vector<std::vector<unsigned char>>>(positions_.size());
+  positions_to_rows_ = std::make_shared<std::vector<std::vector<unsigned char>>>(num_positions_);
 
   for (int row = 0; row < rows_to_positions_->size(); ++row) {
     for (PositionIndex positionIndex : rows_to_positions_->at(row)) {

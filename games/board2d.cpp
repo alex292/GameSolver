@@ -1,15 +1,9 @@
 #include "board2d.h"
 
 Board2D::Board2D(int size_x, int size_y)
-    : Board2D(size_x, size_y, size_x * size_y, size_x * size_y) {}
-
-Board2D::Board2D(int size_x, int size_y, int num_moves, int num_positions)
-    : size_x_(size_x)
-    , size_y_(size_y)
-    , num_moves_(num_moves)
-    , num_positions_(num_positions) {
-  positions_ = std::vector<PositionValue>(num_positions, POSITION_VALUE_FREE);
-}
+    : Board(size_x * size_y, size_x * size_y)
+    , size_x_(size_x)
+    , size_y_(size_y) {}
 
 QString Board2D::MoveToReadableMove(Move move) const {
   int y = move / size_x_;
@@ -38,7 +32,7 @@ void Board2D::GetPossibleMoves(std::vector<Move> &moves) const {
 }
 
 bool Board2D::IsMovePossible(Move move) const {
-  return (positions_[move] == POSITION_VALUE_FREE);
+  return !(positions_white_[move] || positions_black_[move]);
 }
 
 bool Board2D::HasRemainingMoves() {

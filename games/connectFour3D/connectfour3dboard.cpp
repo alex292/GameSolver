@@ -3,7 +3,8 @@
 #include "games/zobristgenerator.h"
 
 ConnectFour3DBoard::ConnectFour3DBoard()
-    : Board2DStacked(4, 4, 4)
+    : Board(64, 16)
+    , Board2DStacked(4, 4, 4)
     , ConnectedRowsBoard() {
   // zobrist values
   ZobristGenerator &zobrist_generator = ZobristGenerator::GetInstance();
@@ -20,10 +21,10 @@ PositionIndex ConnectFour3DBoard::PerformMove(Move move) {
   // set position
   stack_heights_[move] += 1;
   if (is_turn_white_) {
-    positions_[position] = POSITION_VALUE_WHITE;
+    positions_white_[position] = true;
     zobrist_value_ ^= zobrist_values_positions_white_->at(position);
   } else {
-    positions_[position] = POSITION_VALUE_BLACK;
+    positions_black_[position] = true;
     zobrist_value_ ^= zobrist_values_positions_black_->at(position);
   }
 
