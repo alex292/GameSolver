@@ -20,10 +20,10 @@ PositionIndex TicTacToeBoard::PerformMove(Move move) {
 
   // set position
   if (is_turn_white_) {
-    positions_[position] = POSITION_VALUE_WHITE;
+    positions_white_[position] = true;
     zobrist_value_ ^= zobrist_values_positions_white_[position];
   } else {
-    positions_[position] = POSITION_VALUE_BLACK;
+    positions_black_[position] = true;
     zobrist_value_ ^= zobrist_values_positions_black_[position];
   }
 

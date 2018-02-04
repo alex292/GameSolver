@@ -8,7 +8,8 @@ const unsigned int Board3D<X, Y, Z>::num_moves_;
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
 Board3D<X, Y, Z>::Board3D()
-    : positions_() {}
+    : positions_white_()
+    , positions_black_() {}
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
 QString Board3D<X, Y, Z>::MoveToReadableMove(Move move) const {
@@ -42,11 +43,11 @@ void Board3D<X, Y, Z>::GetPossibleMoves(std::vector<Move> &moves) const {
 template <unsigned int X, unsigned int Y, unsigned int Z>
 bool Board3D<X, Y, Z>::IsMovePossible(Move move) const {
   if (Z == 1)
-    return (positions_[move] == POSITION_VALUE_FREE);
+    return (!positions_white_[move] && !positions_black_[move]);
 
   for (int z = 0; z < Z; ++z) {
     PositionIndex p = move + z * X * Y;
-    if (positions_[p] == POSITION_VALUE_FREE)
+    if (!positions_white_[move] && !positions_black_[move])
       return true;
   }
   return false;
@@ -72,7 +73,7 @@ PositionIndex Board3D<X, Y, Z>::GetResultingPositionIndex(Move move) const {
 
   for (int z = 0; z < Z; ++z) {
     PositionIndex p = move + z * X * Y;
-    if (positions_[p] == POSITION_VALUE_FREE)
+    if (!positions_white_[move] && !positions_black_[move])
       return p;
   }
 

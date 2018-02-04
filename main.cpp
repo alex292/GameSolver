@@ -100,16 +100,14 @@ std::shared_ptr<Player> CreatePlayer(const QString &color, const std::shared_ptr
 }
 
 int main(int argc, char *argv[]) {
-  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
-  //  std::shared_ptr<Board> board = CreateBoard();
+  //  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
+  std::shared_ptr<Board> board = CreateBoard();
 
-  qDebug() << "size" << sizeof(ConnectFour3DBoard) << sizeof(TicTacToeBoard);
-
-  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(60000, QThread::idealThreadCount(), false);
-  std::shared_ptr<Player> player_black = player_white;
+  //  std::shared_ptr<Player> player_white = std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(), false);
+  //  std::shared_ptr<Player> player_black = std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(), false);
   // std::make_shared<MonteCarloPlayer>(1000, QThread::idealThreadCount(), false);
-  //  std::shared_ptr<Player> player_white = CreatePlayer("white");
-  //  std::shared_ptr<Player> player_black = CreatePlayer("black", player_white);
+  std::shared_ptr<Player> player_white = CreatePlayer("white");
+  std::shared_ptr<Player> player_black = CreatePlayer("black", player_white);
 
   Game game(board, player_white, player_black);
   game.Run();
