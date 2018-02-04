@@ -47,7 +47,7 @@ bool Board3D<X, Y, Z>::IsMovePossible(Move move) const {
 
   for (int z = 0; z < Z; ++z) {
     PositionIndex p = move + z * X * Y;
-    if (!positions_white_[move] && !positions_black_[move])
+    if (!positions_white_[p] && !positions_black_[p])
       return true;
   }
   return false;
@@ -73,7 +73,7 @@ PositionIndex Board3D<X, Y, Z>::GetResultingPositionIndex(Move move) const {
 
   for (int z = 0; z < Z; ++z) {
     PositionIndex p = move + z * X * Y;
-    if (!positions_white_[move] && !positions_black_[move])
+    if (!positions_white_[p] && !positions_black_[p])
       return p;
   }
 

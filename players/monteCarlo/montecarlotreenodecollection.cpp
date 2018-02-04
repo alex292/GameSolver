@@ -3,10 +3,6 @@
 #include <QDebug>
 #include <QtConcurrent>
 
-MonteCarloTreeNodeCollection::MonteCarloTreeNodeCollection() {
-  // nodes_.reserve(1000000);
-}
-
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::CreateNode(const std::shared_ptr<const Board> &board) {
   ZobristValue zobrist_value = board->GetZobristValue();
 
