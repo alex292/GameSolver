@@ -1,10 +1,9 @@
 #ifndef TICTACTOEBOARD_H
 #define TICTACTOEBOARD_H
 
-#include "games/board2d.h"
 #include "games/connectedrowsboard.h"
 
-class TicTacToeBoard : public Board2D, public ConnectedRowsBoard {
+class TicTacToeBoard : public ConnectedRowsBoard<3, 3, 1> {
  public:
   TicTacToeBoard();
 
@@ -13,10 +12,18 @@ class TicTacToeBoard : public Board2D, public ConnectedRowsBoard {
   std::shared_ptr<Board> Copy() const;
 
  protected:
-  void GenerateRowsToPositions();
+  static bool initialized_static_data_;
 
-  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_white_;
-  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_black_;
+  static std::vector<std::vector<PositionIndex>> rows_to_positions_;
+  static std::vector<std::vector<unsigned char>> positions_to_rows_;
+
+  static std::vector<ZobristValue> zobrist_values_positions_white_;
+  static std::vector<ZobristValue> zobrist_values_positions_black_;
+
+  void InitializeStaticData();
+
+  const std::vector<PositionIndex> &GetPositionsFromRow(unsigned char row);
+  const std::vector<unsigned char> &GetRowsFromPosition(PositionIndex position);
 };
 
 #endif  // TICTACTOEBOARD_H

@@ -1,10 +1,9 @@
 #ifndef CONNECTFOUR3DBOARD_H
 #define CONNECTFOUR3DBOARD_H
 
-#include "games/board2dstacked.h"
 #include "games/connectedrowsboard.h"
 
-class ConnectFour3DBoard : public Board2DStacked, public ConnectedRowsBoard {
+class ConnectFour3DBoard : public ConnectedRowsBoard<4, 4, 4> {
  public:
   ConnectFour3DBoard();
 
@@ -13,10 +12,18 @@ class ConnectFour3DBoard : public Board2DStacked, public ConnectedRowsBoard {
   std::shared_ptr<Board> Copy() const;
 
  protected:
-  void GenerateRowsToPositions();
+  static bool initialized_static_data_;
 
-  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_white_;
-  std::shared_ptr<std::vector<ZobristValue>> zobrist_values_positions_black_;
+  static std::vector<std::vector<PositionIndex>> rows_to_positions_;
+  static std::vector<std::vector<unsigned char>> positions_to_rows_;
+
+  static std::vector<ZobristValue> zobrist_values_positions_white_;
+  static std::vector<ZobristValue> zobrist_values_positions_black_;
+
+  void InitializeStaticData();
+
+  const std::vector<PositionIndex> &GetPositionsFromRow(unsigned char row);
+  const std::vector<unsigned char> &GetRowsFromPosition(PositionIndex position);
 };
 
 #endif  // CONNECTFOUR3DBOARD_H

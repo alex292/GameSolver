@@ -15,7 +15,7 @@ class ZobristGenerator {
   ZobristGenerator(ZobristGenerator const&) = delete;
   void operator=(ZobristGenerator const&) = delete;
 
-  std::shared_ptr<std::vector<ZobristValue>> GenerateUniqueZobristValues(int num);
+  void GenerateUniqueZobristValues(int num, std::vector<ZobristValue>& values);
 
  private:
   ZobristGenerator();
