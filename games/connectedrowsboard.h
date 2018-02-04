@@ -22,8 +22,7 @@ class ConnectedRowsBoard : public Board3D<X, Y, Z> {
   std::shared_ptr<std::vector<std::vector<PositionIndex>>> rows_to_positions_;
   std::shared_ptr<std::vector<std::vector<unsigned char>>> positions_to_rows_;*/
 
-  using Board3D<X, Y, Z>::positions_white_;
-  using Board3D<X, Y, Z>::positions_black_;
+  using Board3D<X, Y, Z>::positions_;
   using Board3D<X, Y, Z>::num_positions_;
   using Board3D<X, Y, Z>::HasRemainingMoves;
   using Board::is_game_over_;

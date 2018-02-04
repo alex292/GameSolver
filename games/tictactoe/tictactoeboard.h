@@ -3,7 +3,7 @@
 
 #include "games/connectedrowsboard.h"
 
-class TicTacToeBoard : public ConnectedRowsBoard<3, 3, 1> {
+class TicTacToeBoard : public ConnectedRowsBoard<24, 24, 1> {
  public:
   TicTacToeBoard();
 
