@@ -181,7 +181,7 @@ void MonteCarloTreeNode::HasLosingMove() {
     return;
   unexplored_locker.unlock();
 
-  // check if any child nodes are not winning
+  // check if all possible moves are losing moves
   QReadLocker explored_locker(&explored_moves_lock_);
   QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter_explored(
       explored_moves_);
@@ -193,7 +193,7 @@ void MonteCarloTreeNode::HasLosingMove() {
   }
   explored_locker.unlock();
 
-  // all childs are winning -> this = losing state
+  // all possible moves are losing -> this = losing state
   is_losing_state_ = true;
 
   QReadLocker parents_locker(&parents_lock_);

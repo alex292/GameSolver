@@ -17,8 +17,10 @@ class MonteCarloTreeExplorer : public QRunnable {
  protected:
   MonteCarloTree* tree_;
   const QDeadlineTimer* deadline_timer_;
-
   RandomPlayer random_player_;
+
+  void Selection(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
+  void Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
 
   std::unique_ptr<const Board> RandomPlayout(
       const std::shared_ptr<const MonteCarloTreeNode>& node);

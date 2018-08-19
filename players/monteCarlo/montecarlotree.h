@@ -8,17 +8,17 @@
 
 class MonteCarloTree {
  public:
-  MonteCarloTree();
-
-  void Selection(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
-  void Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
+  MonteCarloTree() {}
 
   const std::shared_ptr<MonteCarloTreeNode> root() const { return root_; }
   void SetRoot(std::unique_ptr<const Board> board);
 
+  const std::shared_ptr<MonteCarloTreeNode> GetNode(
+      std::unique_ptr<const Board> board);
+
  protected:
   std::shared_ptr<MonteCarloTreeNode> root_;
-  std::unique_ptr<MonteCarloTreeNodeCollection> node_collection_;
+  MonteCarloTreeNodeCollection node_collection_;
 };
 
 #endif  // MONTECARLOTREE_H
