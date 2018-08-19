@@ -13,11 +13,13 @@
 class Board {
  public:
   Board() {}
+  virtual ~Board() {}
 
   virtual QString MoveToReadableMove(Move move) const = 0;
-  virtual Move ReadableMoveToMove(const QString &readable_move, bool &valid) const = 0;
+  virtual Move ReadableMoveToMove(const QString& readable_move,
+                                  bool& valid) const = 0;
 
-  virtual void GetPossibleMoves(std::vector<Move> &moves) const = 0;
+  virtual void GetPossibleMoves(std::vector<Move>& moves) const = 0;
   virtual bool IsMovePossible(Move move) const = 0;
   virtual bool HasRemainingMoves() = 0;
 
@@ -29,7 +31,9 @@ class Board {
   bool IsGameOver() const { return is_game_over_; }
   bool IsWinWhite() const { return is_win_white_; }
   bool IsWinBlack() const { return is_win_black_; }
-  bool IsTie() const { return is_game_over_ && !is_win_white_ && !is_win_black_; }
+  bool IsTie() const {
+    return is_game_over_ && !is_win_white_ && !is_win_black_;
+  }
 
   ZobristValue GetZobristValue() const { return zobrist_value_; }
 

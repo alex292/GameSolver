@@ -7,20 +7,19 @@ template <unsigned int X, unsigned int Y, unsigned int Z>
 const unsigned int Board3D<X, Y, Z>::num_moves_;
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
-Board3D<X, Y, Z>::Board3D()
-    : positions_white_()
-    , positions_black_() {}
+Board3D<X, Y, Z>::Board3D() : positions_white_(), positions_black_() {}
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
 QString Board3D<X, Y, Z>::MoveToReadableMove(Move move) const {
   int y = move / X;
   int x = move % Y;
 
-  return ((char)'A' + x) + QString::number(y + 1);
+  return ('A' + static_cast<char>(x)) + QString::number(y + 1);
 }
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
-Move Board3D<X, Y, Z>::ReadableMoveToMove(const QString &readable_move, bool &valid) const {
+Move Board3D<X, Y, Z>::ReadableMoveToMove(const QString& readable_move,
+                                          bool& valid) const {
   int x = (readable_move.at(0).toUpper().toLatin1() - 'A');
   int y = readable_move.mid(1).toInt() - 1;
 
@@ -30,11 +29,11 @@ Move Board3D<X, Y, Z>::ReadableMoveToMove(const QString &readable_move, bool &va
 }
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
-void Board3D<X, Y, Z>::GetPossibleMoves(std::vector<Move> &moves) const {
+void Board3D<X, Y, Z>::GetPossibleMoves(std::vector<Move>& moves) const {
   if (is_game_over_)
     return;
 
-  for (int i = 0; i < num_moves_; ++i) {
+  for (Move i = 0; i < num_moves_; ++i) {
     if (IsMovePossible(i))
       moves.push_back(i);
   }
@@ -81,6 +80,8 @@ PositionIndex Board3D<X, Y, Z>::GetResultingPositionIndex(Move move) const {
 }
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
-PositionIndex Board3D<X, Y, Z>::MapXYZtoPositionIndex(int x, int y, int z) const {
+PositionIndex Board3D<X, Y, Z>::MapXYZtoPositionIndex(int x,
+                                                      int y,
+                                                      int z) const {
   return (x + y * X + z * X * Y);
 }

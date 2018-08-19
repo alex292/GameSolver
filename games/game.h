@@ -6,7 +6,9 @@
 
 class Game {
  public:
-  Game(const std::shared_ptr<Board> &board, const std::shared_ptr<Player> &player_white, const std::shared_ptr<Player> &player_black);
+  Game(const std::shared_ptr<Board>& board,
+       const std::shared_ptr<Player>& player_white,
+       const std::shared_ptr<Player>& player_black);
 
   void Run();
 

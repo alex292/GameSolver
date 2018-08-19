@@ -9,11 +9,12 @@ template <unsigned int X, unsigned int Y, unsigned int Z>
 class Board3D : public Board {
  public:
   Board3D();
+  virtual ~Board3D() {}
 
   QString MoveToReadableMove(Move move) const;
-  Move ReadableMoveToMove(const QString &readable_move, bool &valid) const;
+  Move ReadableMoveToMove(const QString& readable_move, bool& valid) const;
 
-  void GetPossibleMoves(std::vector<Move> &moves) const;
+  void GetPossibleMoves(std::vector<Move>& moves) const;
   virtual bool IsMovePossible(Move move) const;
   bool HasRemainingMoves();
 

@@ -11,7 +11,7 @@
 
 class MonteCarloTreeNode {
  public:
-  MonteCarloTreeNode(const std::shared_ptr<const Board> &board);
+  MonteCarloTreeNode(const std::shared_ptr<const Board>& board);
 
   ZobristValue GetZobristValue() const { return board_->GetZobristValue(); }
 
@@ -21,9 +21,10 @@ class MonteCarloTreeNode {
   double GetUCTValue(unsigned int num_parent_evaluations) const;
 
   Move GetNextUnexploredMove();
-  void AddExploredMove(Move move, const std::shared_ptr<MonteCarloTreeNode> &node);
+  void AddExploredMove(Move move,
+                       const std::shared_ptr<MonteCarloTreeNode>& node);
 
-  void AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode> &parent);
+  void AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode>& parent);
   void RemoveExpiredParents();
 
   const std::shared_ptr<const Board> GetBoard() const { return board_; }

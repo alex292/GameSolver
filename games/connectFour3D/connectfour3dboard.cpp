@@ -3,8 +3,8 @@
 #include "games/zobristgenerator.h"
 
 bool ConnectFour3DBoard::initialized_static_data_ = false;
-std::vector<std::vector<PositionIndex>> ConnectFour3DBoard::rows_to_positions_;
-std::vector<std::vector<unsigned char>> ConnectFour3DBoard::positions_to_rows_;
+std::vector<std::vector<PositionIndex>> ConnectFour3DBoard::lines_to_positions_;
+std::vector<std::vector<LineIndex>> ConnectFour3DBoard::positions_to_lines_;
 std::vector<ZobristValue> ConnectFour3DBoard::zobrist_values_positions_white_;
 std::vector<ZobristValue> ConnectFour3DBoard::zobrist_values_positions_black_;
 
@@ -33,23 +33,23 @@ std::shared_ptr<Board> ConnectFour3DBoard::Copy() const {
 }
 
 void ConnectFour3DBoard::InitializeStaticData() {
-  // generate rows to positions (for ConnectedRowsBoard)
-  // straight rows X,Y,Z
+  // generate lines to positions (for ConnectedLinesBoard)
+  // straight lines X,Y,Z
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
-      std::vector<PositionIndex> row_x;
-      std::vector<PositionIndex> row_y;
-      std::vector<PositionIndex> row_z;
+      std::vector<PositionIndex> line_x;
+      std::vector<PositionIndex> line_y;
+      std::vector<PositionIndex> line_z;
 
       for (int k = 0; k < 4; ++k) {
-        row_x.push_back(MapXYZtoPositionIndex(k, j, i));
-        row_y.push_back(MapXYZtoPositionIndex(j, k, i));
-        row_z.push_back(MapXYZtoPositionIndex(j, i, k));
+        line_x.push_back(MapXYZtoPositionIndex(k, j, i));
+        line_y.push_back(MapXYZtoPositionIndex(j, k, i));
+        line_z.push_back(MapXYZtoPositionIndex(j, i, k));
       }
 
-      rows_to_positions_.push_back(row_x);
-      rows_to_positions_.push_back(row_y);
-      rows_to_positions_.push_back(row_z);
+      lines_to_positions_.push_back(line_x);
+      lines_to_positions_.push_back(line_y);
+      lines_to_positions_.push_back(line_z);
     }
   }
 
@@ -75,12 +75,12 @@ void ConnectFour3DBoard::InitializeStaticData() {
       diag_z_inv.push_back(MapXYZtoPositionIndex(j, 3 - j, i));
     }
 
-    rows_to_positions_.push_back(diag_x);
-    rows_to_positions_.push_back(diag_x_inv);
-    rows_to_positions_.push_back(diag_y);
-    rows_to_positions_.push_back(diag_y_inv);
-    rows_to_positions_.push_back(diag_z);
-    rows_to_positions_.push_back(diag_z_inv);
+    lines_to_positions_.push_back(diag_x);
+    lines_to_positions_.push_back(diag_x_inv);
+    lines_to_positions_.push_back(diag_y);
+    lines_to_positions_.push_back(diag_y_inv);
+    lines_to_positions_.push_back(diag_z);
+    lines_to_positions_.push_back(diag_z_inv);
   }
 
   // 3D diagonals
@@ -96,27 +96,32 @@ void ConnectFour3DBoard::InitializeStaticData() {
     diag_bl.push_back(MapXYZtoPositionIndex(i, 3 - i, i));
   }
 
-  rows_to_positions_.push_back(diag_tl);
-  rows_to_positions_.push_back(diag_tr);
-  rows_to_positions_.push_back(diag_br);
-  rows_to_positions_.push_back(diag_bl);
+  lines_to_positions_.push_back(diag_tl);
+  lines_to_positions_.push_back(diag_tr);
+  lines_to_positions_.push_back(diag_br);
+  lines_to_positions_.push_back(diag_bl);
 
-  // generate positions to rows (for ConnectedRowsBoard)
-  GeneratePositionsToRowsFromRowsToPositions(rows_to_positions_, positions_to_rows_);
+  // generate positions to lines (for ConnectedLinesBoard)
+  GeneratePositionsToLinesFromLinesToPositions(lines_to_positions_,
+                                               positions_to_lines_);
 
   // zobrist values
-  ZobristGenerator &zobrist_generator = ZobristGenerator::GetInstance();
-  zobrist_generator.GenerateUniqueZobristValues(num_positions_, zobrist_values_positions_white_);
-  zobrist_generator.GenerateUniqueZobristValues(num_positions_, zobrist_values_positions_black_);
+  ZobristGenerator& zobrist_generator = ZobristGenerator::GetInstance();
+  zobrist_generator.GenerateUniqueZobristValues(
+      num_positions_, zobrist_values_positions_white_);
+  zobrist_generator.GenerateUniqueZobristValues(
+      num_positions_, zobrist_values_positions_black_);
 
   // mark as initialized
   initialized_static_data_ = true;
 }
 
-const std::vector<PositionIndex> &ConnectFour3DBoard::GetPositionsFromRow(unsigned char row) {
-  return rows_to_positions_[row];
+const std::vector<PositionIndex>& ConnectFour3DBoard::GetPositionsForLine(
+    LineIndex line) {
+  return lines_to_positions_[line];
 }
 
-const std::vector<unsigned char> &ConnectFour3DBoard::GetRowsFromPosition(PositionIndex position) {
-  return positions_to_rows_[position];
+const std::vector<LineIndex>& ConnectFour3DBoard::GetLinesForPosition(
+    PositionIndex position) {
+  return positions_to_lines_[position];
 }

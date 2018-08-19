@@ -11,9 +11,12 @@
 
 class MonteCarloPlayer : public Player {
  public:
-  MonteCarloPlayer(int time_per_move, int num_threads = QThread::idealThreadCount(), bool use_pondering = false);
+  MonteCarloPlayer(int time_per_move,
+                   int num_threads = QThread::idealThreadCount(),
+                   bool use_pondering = false);
+  virtual ~MonteCarloPlayer() {}
 
-  Move GetNextMove(const std::shared_ptr<const Board> &board);
+  Move GetNextMove(const std::shared_ptr<const Board>& board);
 
  protected:
   const int num_threads_;

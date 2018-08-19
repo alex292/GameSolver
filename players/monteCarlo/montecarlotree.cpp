@@ -6,7 +6,8 @@ MonteCarloTree::MonteCarloTree() {
   node_collection_ = std::make_shared<MonteCarloTreeNodeCollection>();
 }
 
-void MonteCarloTree::Selection(std::vector<std::shared_ptr<MonteCarloTreeNode> > &nodes) {
+void MonteCarloTree::Selection(
+    std::vector<std::shared_ptr<MonteCarloTreeNode> >& nodes) {
   std::shared_ptr<MonteCarloTreeNode> node = root_;
   nodes.push_back(node);
 
@@ -16,8 +17,9 @@ void MonteCarloTree::Selection(std::vector<std::shared_ptr<MonteCarloTreeNode> >
   }
 }
 
-void MonteCarloTree::Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode> > &nodes) {
-  const std::shared_ptr<MonteCarloTreeNode> &node = nodes.back();
+void MonteCarloTree::Expansion(
+    std::vector<std::shared_ptr<MonteCarloTreeNode> >& nodes) {
+  const std::shared_ptr<MonteCarloTreeNode>& node = nodes.back();
 
   if (!node->IsExpandable())
     return;
@@ -30,7 +32,8 @@ void MonteCarloTree::Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode> >
   next_board->MakeMove(next_move);
 
   // get node for next move
-  std::shared_ptr<MonteCarloTreeNode> next_node = node_collection_->GetNode(next_board);
+  std::shared_ptr<MonteCarloTreeNode> next_node =
+      node_collection_->GetNode(next_board);
 
   // add links
   next_node->AddParent(next_move, node);
@@ -43,7 +46,7 @@ Move MonteCarloTree::GetBestMove() {
   return root_->GetBestMove();
 }
 
-void MonteCarloTree::SetRoot(const std::shared_ptr<const Board> &board) {
+void MonteCarloTree::SetRoot(const std::shared_ptr<const Board>& board) {
   root_ = node_collection_->GetNode(board);
   node_collection_->RemoveExpiredNodes();
 }

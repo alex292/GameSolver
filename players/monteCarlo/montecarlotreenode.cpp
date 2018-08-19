@@ -4,7 +4,8 @@
 #include <QReadLocker>
 #include "players/random/randomplayer.h"
 
-MonteCarloTreeNode::MonteCarloTreeNode(const std::shared_ptr<const Board> &board)
+MonteCarloTreeNode::MonteCarloTreeNode(
+    const std::shared_ptr<const Board>& board)
     : board_(board) {
   num_evaluations_ = 0;
   num_wins_ = 0;
@@ -32,7 +33,8 @@ bool MonteCarloTreeNode::IsLeafNode() {
 bool MonteCarloTreeNode::IsExpandable() {
   QReadLocker unexplored_read_locker(&unexplored_moves_lock_);
   if (!unexplored_moves_.empty()) {
-    // upgrade lock to write-lock, check again and return with lock if still not empty
+    // upgrade lock to write-lock, check again and return with lock if still not
+    // empty
     unexplored_read_locker.unlock();
     unexplored_moves_lock_.lockForWrite();
     if (!unexplored_moves_.empty())
@@ -43,7 +45,8 @@ bool MonteCarloTreeNode::IsExpandable() {
   return false;
 }
 
-const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChild() {
+const std::shared_ptr<MonteCarloTreeNode>
+MonteCarloTreeNode::SelectNextBestChild() {
   QReadLocker locker(&explored_moves_lock_);
 
   if (is_winning_state_)
@@ -54,13 +57,15 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
 
   unsigned int num_parent_evaluations = num_evaluations_;
 
-  std::shared_ptr<MonteCarloTreeNode> next_node = explored_moves_.constBegin().value();
+  std::shared_ptr<MonteCarloTreeNode> next_node =
+      explored_moves_.constBegin().value();
   double best_value = -1;
 
-  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(explored_moves_);
+  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(
+      explored_moves_);
   while (iter.hasNext()) {
     iter.next();
-    const std::shared_ptr<MonteCarloTreeNode> &n = iter.value();
+    const std::shared_ptr<MonteCarloTreeNode>& n = iter.value();
     double value = n->GetUCTValue(num_parent_evaluations);
 
     if (value > best_value) {
@@ -72,7 +77,8 @@ const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNode::SelectNextBestChil
   return next_node;
 }
 
-double MonteCarloTreeNode::GetUCTValue(unsigned int num_parent_evaluations) const {
+double MonteCarloTreeNode::GetUCTValue(
+    unsigned int num_parent_evaluations) const {
   if (num_evaluations_ == 0)
     return 0;
 
@@ -82,7 +88,9 @@ double MonteCarloTreeNode::GetUCTValue(unsigned int num_parent_evaluations) cons
   if (is_losing_state_)
     return std::numeric_limits<double>::infinity();
 
-  return ((num_wins_ + 0.1 * num_ties_) / (double)num_evaluations_) + 1.414213562 * sqrt(log((double)num_parent_evaluations) / num_evaluations_);
+  double num_evaluations = static_cast<double>(num_evaluations_);
+  return ((num_wins_ + 0.1 * num_ties_) / num_evaluations) +
+         1.414213562 * sqrt(log(num_parent_evaluations) / num_evaluations);
 }
 
 Move MonteCarloTreeNode::GetNextUnexploredMove() {
@@ -91,7 +99,9 @@ Move MonteCarloTreeNode::GetNextUnexploredMove() {
   return next_move;
 }
 
-void MonteCarloTreeNode::AddExploredMove(Move move, const std::shared_ptr<MonteCarloTreeNode> &node) {
+void MonteCarloTreeNode::AddExploredMove(
+    Move move,
+    const std::shared_ptr<MonteCarloTreeNode>& node) {
   // add explored move
   QWriteLocker locker(&explored_moves_lock_);
   explored_moves_.insert(move, node);
@@ -105,7 +115,9 @@ void MonteCarloTreeNode::AddExploredMove(Move move, const std::shared_ptr<MonteC
     HasWinningMove(move);
 }
 
-void MonteCarloTreeNode::AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode> &parent) {
+void MonteCarloTreeNode::AddParent(
+    Move move,
+    const std::shared_ptr<MonteCarloTreeNode>& parent) {
   QWriteLocker locker(&parents_lock_);
   parents_.insert(move, parent);
 }
@@ -127,20 +139,19 @@ Move MonteCarloTreeNode::GetBestMove() {
   QReadLocker locker(&explored_moves_lock_);
 
   Move best_move = explored_moves_.constBegin().key();
-  int best_move_num_evaluations = -1;
+  unsigned int best_move_num_evaluations = 0;
 
-  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(explored_moves_);
+  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter(
+      explored_moves_);
   while (iter.hasNext()) {
     iter.next();
-    const std::shared_ptr<MonteCarloTreeNode> &n = iter.value();
+    const std::shared_ptr<MonteCarloTreeNode>& n = iter.value();
 
-    int numEvaluations = n->GetNumEvaluations();
+    unsigned int numEvaluations = n->GetNumEvaluations();
     if (numEvaluations > best_move_num_evaluations) {
       best_move = iter.key();
       best_move_num_evaluations = numEvaluations;
     }
-
-    // qDebug() << "###" << iter.key() << "\t" << iter.value()->GetNumWins() << "\t" << iter.value()->GetNumEvaluations() << "\t" << (iter.value()->GetNumWins() / (double)iter.value()->GetNumEvaluations());
   }
 
   return best_move;
@@ -173,10 +184,11 @@ void MonteCarloTreeNode::HasLosingMove() {
 
   // check if any child nodes are not winning
   QReadLocker explored_locker(&explored_moves_lock_);
-  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter_explored(explored_moves_);
+  QHashIterator<Move, std::shared_ptr<MonteCarloTreeNode>> iter_explored(
+      explored_moves_);
   while (iter_explored.hasNext()) {
     iter_explored.next();
-    const std::shared_ptr<MonteCarloTreeNode> &n = iter_explored.value();
+    const std::shared_ptr<MonteCarloTreeNode>& n = iter_explored.value();
     if (!n->IsWinningState())
       return;
   }

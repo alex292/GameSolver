@@ -9,8 +9,10 @@ class MonteCarloTreeNodeCollection {
  public:
   MonteCarloTreeNodeCollection() {}
 
-  const std::shared_ptr<MonteCarloTreeNode> CreateNode(const std::shared_ptr<const Board> &board);
-  const std::shared_ptr<MonteCarloTreeNode> GetNode(const std::shared_ptr<const Board> &board);
+  const std::shared_ptr<MonteCarloTreeNode> CreateNode(
+      const std::shared_ptr<const Board>& board);
+  const std::shared_ptr<MonteCarloTreeNode> GetNode(
+      const std::shared_ptr<const Board>& board);
   void RemoveExpiredNodes();
 
  protected:

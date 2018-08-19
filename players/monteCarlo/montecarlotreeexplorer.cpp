@@ -3,9 +3,10 @@
 #include <QDebug>
 #include <QThread>
 
-MonteCarloTreeExplorer::MonteCarloTreeExplorer(const std::shared_ptr<MonteCarloTree> &tree, const std::shared_ptr<const QDeadlineTimer> &deadline_timer)
-    : deadline_timer_(deadline_timer)
-    , tree_(tree) {}
+MonteCarloTreeExplorer::MonteCarloTreeExplorer(
+    const std::shared_ptr<MonteCarloTree>& tree,
+    const std::shared_ptr<const QDeadlineTimer>& deadline_timer)
+    : deadline_timer_(deadline_timer), tree_(tree) {}
 
 void MonteCarloTreeExplorer::run() {
   const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
@@ -15,12 +16,14 @@ void MonteCarloTreeExplorer::run() {
     node_path.clear();
     tree_->Selection(node_path);
     tree_->Expansion(node_path);
-    const std::shared_ptr<const Board> playout_board = RandomPlayout(node_path.back());
+    const std::shared_ptr<const Board> playout_board =
+        RandomPlayout(node_path.back());
     BackpropagateResult(node_path, playout_board);
   }
 }
 
-const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(const std::shared_ptr<const MonteCarloTreeNode> &node) {
+const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(
+    const std::shared_ptr<const MonteCarloTreeNode>& node) {
   if (node->GetBoard()->IsGameOver())
     return node->GetBoard();  // avoid copy
 
@@ -32,12 +35,16 @@ const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(const s
   return board;
 }
 
-void MonteCarloTreeExplorer::BackpropagateResult(const std::vector<std::shared_ptr<MonteCarloTreeNode>> &node_path, const std::shared_ptr<const Board> &playout_board) {
-  for (const std::shared_ptr<MonteCarloTreeNode> &node : node_path) {
-    const std::shared_ptr<const Board> &board = node->GetBoard();
-    if ((board->IsTurnWhite() && playout_board->IsWinWhite()) || (!board->IsTurnWhite() && playout_board->IsWinBlack()))
+void MonteCarloTreeExplorer::BackpropagateResult(
+    const std::vector<std::shared_ptr<MonteCarloTreeNode>>& node_path,
+    const std::shared_ptr<const Board>& playout_board) {
+  for (const std::shared_ptr<MonteCarloTreeNode>& node : node_path) {
+    const std::shared_ptr<const Board>& board = node->GetBoard();
+    if ((board->IsTurnWhite() && playout_board->IsWinWhite()) ||
+        (!board->IsTurnWhite() && playout_board->IsWinBlack()))
       node->AddLoss();
-    else if ((board->IsTurnWhite() && playout_board->IsWinBlack()) || (!board->IsTurnWhite() && playout_board->IsWinWhite()))
+    else if ((board->IsTurnWhite() && playout_board->IsWinBlack()) ||
+             (!board->IsTurnWhite() && playout_board->IsWinWhite()))
       node->AddWin();
     else
       node->AddTie();

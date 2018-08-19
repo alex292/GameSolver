@@ -6,8 +6,9 @@
 class HumanPlayer : public Player {
  public:
   HumanPlayer();
+  virtual ~HumanPlayer() {}
 
-  Move GetNextMove(const std::shared_ptr<const Board> &board);
+  Move GetNextMove(const std::shared_ptr<const Board>& board);
 };
 
 #endif  // HUMANPLAYER_H

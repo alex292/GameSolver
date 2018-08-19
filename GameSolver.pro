@@ -45,8 +45,8 @@ HEADERS += \
     types.h \
     games/connectFour3D/connectfour3dboard.h \
     games/zobristgenerator.h \
-    games/connectedrowsboard.h \
-    games/board3d.h
+    games/board3d.h \
+    games/connectedlinesboard.h
 
 SOURCES += \
     games/tictactoe/tictactoeboard.cpp \
@@ -64,4 +64,4 @@ SOURCES += \
     games/connectFour3D/connectfour3dboard.cpp \
     games/zobristgenerator.cpp \
     games/board3d.tpp \
-    games/connectedrowsboard.tpp
+    games/connectedlinesboard.tpp
