@@ -6,16 +6,16 @@
 
 class Game {
  public:
-  Game(const std::shared_ptr<Board>& board,
-       const std::shared_ptr<Player>& player_white,
-       const std::shared_ptr<Player>& player_black);
+  Game(std::unique_ptr<Board> board,
+       std::unique_ptr<Player> player_white,
+       std::unique_ptr<Player> player_black);
 
   void Run();
 
  protected:
-  std::shared_ptr<Board> board_;
-  std::shared_ptr<Player> player_white_;
-  std::shared_ptr<Player> player_black_;
+  std::unique_ptr<Board> board_;
+  std::unique_ptr<Player> player_white_;
+  std::unique_ptr<Player> player_black_;
 };
 
 #endif  // GAME_H

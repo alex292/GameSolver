@@ -7,7 +7,7 @@
 
 HumanPlayer::HumanPlayer() : Player() {}
 
-Move HumanPlayer::GetNextMove(const std::shared_ptr<const Board>& board) {
+Move HumanPlayer::GetNextMove(Board* board) {
   Move move;
   do {
     std::cout << "HumanPlayer \t Enter Move: ";

@@ -28,8 +28,8 @@ PositionIndex ConnectFour3DBoard::PerformMove(Move move) {
   return position;
 }
 
-std::shared_ptr<Board> ConnectFour3DBoard::Copy() const {
-  return std::make_shared<ConnectFour3DBoard>(*this);
+std::unique_ptr<Board> ConnectFour3DBoard::Copy() const {
+  return std::make_unique<ConnectFour3DBoard>(*this);
 }
 
 void ConnectFour3DBoard::InitializeStaticData() {

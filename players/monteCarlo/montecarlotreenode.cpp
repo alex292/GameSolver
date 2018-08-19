@@ -4,9 +4,8 @@
 #include <QReadLocker>
 #include "players/random/randomplayer.h"
 
-MonteCarloTreeNode::MonteCarloTreeNode(
-    const std::shared_ptr<const Board>& board)
-    : board_(board) {
+MonteCarloTreeNode::MonteCarloTreeNode(std::unique_ptr<const Board> board)
+    : board_(std::move(board)) {
   num_evaluations_ = 0;
   num_wins_ = 0;
   num_ties_ = 0;

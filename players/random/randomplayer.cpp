@@ -2,7 +2,7 @@
 
 RandomPlayer::RandomPlayer() : Player(), random_engine_(random_device_()) {}
 
-Move RandomPlayer::GetNextMove(const std::shared_ptr<const Board>& board) {
+Move RandomPlayer::GetNextMove(Board* board) {
   possible_moves_.clear();
 
   board->GetPossibleMoves(possible_moves_);

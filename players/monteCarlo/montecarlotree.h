@@ -17,12 +17,11 @@ class MonteCarloTree {
   void Selection(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
   void Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
 
-  Move GetBestMove();
-  void SetRoot(const std::shared_ptr<const Board>& board);
+  void SetRoot(std::unique_ptr<const Board> board);
 
  protected:
   std::shared_ptr<MonteCarloTreeNode> root_;
-  std::shared_ptr<MonteCarloTreeNodeCollection> node_collection_;
+  std::unique_ptr<MonteCarloTreeNodeCollection> node_collection_;
 };
 
 #endif  // MONTECARLOTREE_H

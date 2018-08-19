@@ -9,7 +9,7 @@ class ConnectFour3DBoard : public ConnectedLinesBoard<4, 4, 4> {
 
   PositionIndex PerformMove(Move move);
 
-  std::shared_ptr<Board> Copy() const;
+  std::unique_ptr<Board> Copy() const;
 
  protected:
   static bool initialized_static_data_;

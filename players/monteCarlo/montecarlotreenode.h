@@ -11,7 +11,7 @@
 
 class MonteCarloTreeNode {
  public:
-  MonteCarloTreeNode(const std::shared_ptr<const Board>& board);
+  MonteCarloTreeNode(std::unique_ptr<const Board> board);
 
   ZobristValue GetZobristValue() const { return board_->GetZobristValue(); }
 
@@ -27,7 +27,7 @@ class MonteCarloTreeNode {
   void AddParent(Move move, const std::shared_ptr<MonteCarloTreeNode>& parent);
   void RemoveExpiredParents();
 
-  const std::shared_ptr<const Board> GetBoard() const { return board_; }
+  const Board* GetBoard() const { return board_.get(); }
 
   Move GetBestMove();
 
@@ -46,7 +46,7 @@ class MonteCarloTreeNode {
   void AddTie();
 
  protected:
-  std::shared_ptr<const Board> board_;
+  std::unique_ptr<const Board> board_;
 
   QReadWriteLock parents_lock_;
   QHash<Move, std::weak_ptr<MonteCarloTreeNode>> parents_;

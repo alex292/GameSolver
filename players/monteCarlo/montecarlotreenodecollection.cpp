@@ -4,8 +4,7 @@
 #include <QtConcurrent>
 
 const std::shared_ptr<MonteCarloTreeNode>
-MonteCarloTreeNodeCollection::CreateNode(
-    const std::shared_ptr<const Board>& board) {
+MonteCarloTreeNodeCollection::CreateNode(std::unique_ptr<const Board> board) {
   ZobristValue zobrist_value = board->GetZobristValue();
 
   QWriteLocker locker(&nodes_lock_);
@@ -14,21 +13,21 @@ MonteCarloTreeNodeCollection::CreateNode(
     return nodes_[zobrist_value].lock();
 
   const std::shared_ptr<MonteCarloTreeNode> node =
-      std::make_shared<MonteCarloTreeNode>(board);
+      std::make_shared<MonteCarloTreeNode>(std::move(board));
   nodes_.insert(zobrist_value, node);
 
   return node;
 }
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::GetNode(
-    const std::shared_ptr<const Board>& board) {
+    std::unique_ptr<const Board> board) {
   ZobristValue zobrist_value = board->GetZobristValue();
 
   QReadLocker locker(&nodes_lock_);
 
   if (!nodes_.contains(zobrist_value)) {
     locker.unlock();
-    return CreateNode(board);
+    return CreateNode(std::move(board));
   }
 
   return nodes_[zobrist_value].lock();

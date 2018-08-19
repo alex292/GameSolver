@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include <memory>
+
 #include "games/zobristgenerator.h"
 
 bool TicTacToeBoard::initialized_static_data_ = false;
@@ -30,8 +32,8 @@ PositionIndex TicTacToeBoard::PerformMove(Move move) {
   return position;
 }
 
-std::shared_ptr<Board> TicTacToeBoard::Copy() const {
-  return std::make_shared<TicTacToeBoard>(*this);
+std::unique_ptr<Board> TicTacToeBoard::Copy() const {
+  return std::make_unique<TicTacToeBoard>(*this);
 }
 
 void TicTacToeBoard::InitializeStaticData() {

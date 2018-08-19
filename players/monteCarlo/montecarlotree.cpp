@@ -3,7 +3,7 @@
 #include <QDebug>
 
 MonteCarloTree::MonteCarloTree() {
-  node_collection_ = std::make_shared<MonteCarloTreeNodeCollection>();
+  node_collection_ = std::make_unique<MonteCarloTreeNodeCollection>();
 }
 
 void MonteCarloTree::Selection(
@@ -28,12 +28,12 @@ void MonteCarloTree::Expansion(
   Move next_move = node->GetNextUnexploredMove();
 
   // perform next move
-  const std::shared_ptr<Board> next_board = node->GetBoard()->Copy();
+  std::unique_ptr<Board> next_board = node->GetBoard()->Copy();
   next_board->MakeMove(next_move);
 
   // get node for next move
   std::shared_ptr<MonteCarloTreeNode> next_node =
-      node_collection_->GetNode(next_board);
+      node_collection_->GetNode(std::move(next_board));
 
   // add links
   next_node->AddParent(next_move, node);
@@ -42,11 +42,7 @@ void MonteCarloTree::Expansion(
   nodes.push_back(next_node);
 }
 
-Move MonteCarloTree::GetBestMove() {
-  return root_->GetBestMove();
-}
-
-void MonteCarloTree::SetRoot(const std::shared_ptr<const Board>& board) {
-  root_ = node_collection_->GetNode(board);
+void MonteCarloTree::SetRoot(std::unique_ptr<const Board> board) {
+  root_ = node_collection_->GetNode(std::move(board));
   node_collection_->RemoveExpiredNodes();
 }

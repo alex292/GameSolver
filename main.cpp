@@ -74,18 +74,17 @@ bool GetUserInputBool(const QString& command) {
   return (word == "true");
 }
 
-std::shared_ptr<Board> CreateBoard() {
+std::unique_ptr<Board> CreateBoard() {
   unsigned int index =
       GetUserInputString("Choose board", {"tic-tac-toe", "3D-connect-four"});
   if (index == 0)
-    return std::make_shared<TicTacToeBoard>();
+    return std::make_unique<TicTacToeBoard>();
   else
-    return std::make_shared<ConnectFour3DBoard>();
+    return std::make_unique<ConnectFour3DBoard>();
 }
 
-std::shared_ptr<Player> CreatePlayer(
-    const QString& color,
-    const std::shared_ptr<Player>& other_player = nullptr) {
+std::unique_ptr<Player> CreatePlayer(const QString& color,
+                                     Player* other_player = nullptr) {
   std::vector<QString> player_names{"human", "random", "monte-carlo"};
   if (other_player)
     player_names.push_back("copy");
@@ -93,37 +92,32 @@ std::shared_ptr<Player> CreatePlayer(
   unsigned int index =
       GetUserInputString("Choose player " + color, player_names);
   if (index == 0) {
-    return std::make_shared<HumanPlayer>();
+    return std::make_unique<HumanPlayer>();
   } else if (index == 1) {
-    return std::make_shared<RandomPlayer>();
+    return std::make_unique<RandomPlayer>();
   } else if (index == 2) {
     int time_per_move = GetUserInputInt("time per move (ms)", -1,
                                         std::numeric_limits<int>::max());
     int num_threads =
         GetUserInputInt("num threads", 1, QThread::idealThreadCount());
     bool use_pondering = GetUserInputBool("use pondering");
-    return std::make_shared<MonteCarloPlayer>(time_per_move, num_threads,
+    return std::make_unique<MonteCarloPlayer>(time_per_move, num_threads,
                                               use_pondering);
   } else {
-    return other_player;
+    return std::unique_ptr<Player>(
+        other_player);  // dangerous hack (shared ownership of same pointer)
   }
 }
 
 int main(int, char*[]) {
   //  std::shared_ptr<Board> board = std::make_shared<ConnectFour3DBoard>();
-  std::shared_ptr<Board> board = CreateBoard();
+  std::unique_ptr<Board> board = CreateBoard();
 
-  //  std::shared_ptr<Player> player_white =
-  //  std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(),
-  //  false); std::shared_ptr<Player> player_black =
-  //  std::make_shared<MonteCarloPlayer>(10000, QThread::idealThreadCount(),
-  //  false);
-  // std::make_shared<MonteCarloPlayer>(1000, QThread::idealThreadCount(),
-  // false);
-  std::shared_ptr<Player> player_white = CreatePlayer("white");
-  std::shared_ptr<Player> player_black = CreatePlayer("black", player_white);
+  std::unique_ptr<Player> player_white = CreatePlayer("white");
+  std::unique_ptr<Player> player_black =
+      CreatePlayer("black", player_white.get());
 
-  Game game(board, player_white, player_black);
+  Game game(std::move(board), std::move(player_white), std::move(player_black));
   game.Run();
 
   return 0;

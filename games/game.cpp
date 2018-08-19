@@ -2,15 +2,18 @@
 
 #include <QDebug>
 
-Game::Game(const std::shared_ptr<Board>& board,
-           const std::shared_ptr<Player>& player_white,
-           const std::shared_ptr<Player>& player_black)
-    : board_(board), player_white_(player_white), player_black_(player_black) {}
+Game::Game(std::unique_ptr<Board> board,
+           std::unique_ptr<Player> player_white,
+           std::unique_ptr<Player> player_black)
+    : board_(std::move(board)),
+      player_white_(std::move(player_white)),
+      player_black_(std::move(player_black)) {}
 
 void Game::Run() {
   while (!board_->IsGameOver()) {
-    Move move = (board_->IsTurnWhite()) ? player_white_->GetNextMove(board_)
-                                        : player_black_->GetNextMove(board_);
+    Move move = (board_->IsTurnWhite())
+                    ? player_white_->GetNextMove(board_.get())
+                    : player_black_->GetNextMove(board_.get());
     qDebug() << "Player" << ((board_->IsTurnWhite()) ? "white" : "black")
              << "plays" << move << "(" << board_->MoveToReadableMove(move)
              << ")";

@@ -25,7 +25,7 @@ class Board {
 
   void MakeMove(Move move);
   virtual PositionIndex PerformMove(Move move) = 0;
-  virtual std::shared_ptr<Board> Copy() const = 0;
+  virtual std::unique_ptr<Board> Copy() const = 0;
 
   bool IsTurnWhite() const { return is_turn_white_; }
   bool IsGameOver() const { return is_game_over_; }

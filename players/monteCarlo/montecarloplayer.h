@@ -16,19 +16,16 @@ class MonteCarloPlayer : public Player {
                    bool use_pondering = false);
   virtual ~MonteCarloPlayer() {}
 
-  Move GetNextMove(const std::shared_ptr<const Board>& board);
+  Move GetNextMove(Board* board);
 
  protected:
   const int num_threads_;
   const int time_per_move_;
   const bool use_pondering_;
 
-  std::shared_ptr<MonteCarloTree> tree_;
-
-  std::vector<std::shared_ptr<MonteCarloTreeExplorer>> tree_explorers_;
-
-  std::shared_ptr<QDeadlineTimer> deadline_timer_;
-
+  MonteCarloTree tree_;
+  std::vector<std::unique_ptr<MonteCarloTreeExplorer>> tree_explorers_;
+  QDeadlineTimer deadline_timer_;
   QThreadPool thread_pool_;
 };
 

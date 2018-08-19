@@ -4,9 +4,9 @@
 #include <QThread>
 
 MonteCarloTreeExplorer::MonteCarloTreeExplorer(
-    const std::shared_ptr<MonteCarloTree>& tree,
-    const std::shared_ptr<const QDeadlineTimer>& deadline_timer)
-    : deadline_timer_(deadline_timer), tree_(tree) {}
+    MonteCarloTree* tree,
+    const QDeadlineTimer* deadline_timer)
+    : tree_(tree), deadline_timer_(deadline_timer) {}
 
 void MonteCarloTreeExplorer::run() {
   const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
@@ -16,20 +16,17 @@ void MonteCarloTreeExplorer::run() {
     node_path.clear();
     tree_->Selection(node_path);
     tree_->Expansion(node_path);
-    const std::shared_ptr<const Board> playout_board =
+    std::unique_ptr<const Board> playout_board =
         RandomPlayout(node_path.back());
-    BackpropagateResult(node_path, playout_board);
+    BackpropagateResult(node_path, playout_board.get());
   }
 }
 
-const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(
+std::unique_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(
     const std::shared_ptr<const MonteCarloTreeNode>& node) {
-  if (node->GetBoard()->IsGameOver())
-    return node->GetBoard();  // avoid copy
-
-  std::shared_ptr<Board> board = node->GetBoard()->Copy();
+  std::unique_ptr<Board> board = node->GetBoard()->Copy();
   while (!board->IsGameOver()) {
-    Move move = random_player_.GetNextMove(board);
+    Move move = random_player_.GetNextMove(board.get());
     board->MakeMove(move);
   }
   return board;
@@ -37,9 +34,9 @@ const std::shared_ptr<const Board> MonteCarloTreeExplorer::RandomPlayout(
 
 void MonteCarloTreeExplorer::BackpropagateResult(
     const std::vector<std::shared_ptr<MonteCarloTreeNode>>& node_path,
-    const std::shared_ptr<const Board>& playout_board) {
+    const Board* playout_board) {
   for (const std::shared_ptr<MonteCarloTreeNode>& node : node_path) {
-    const std::shared_ptr<const Board>& board = node->GetBoard();
+    const Board* board = node->GetBoard();
     if ((board->IsTurnWhite() && playout_board->IsWinWhite()) ||
         (!board->IsTurnWhite() && playout_board->IsWinBlack()))
       node->AddLoss();

@@ -8,7 +8,7 @@ class HumanPlayer : public Player {
   HumanPlayer();
   virtual ~HumanPlayer() {}
 
-  Move GetNextMove(const std::shared_ptr<const Board>& board);
+  Move GetNextMove(Board* board);
 };
 
 #endif  // HUMANPLAYER_H
