@@ -9,5 +9,15 @@ void Board::MakeMove(Move move) {
 
   CheckForGameOver(last_position);
 
-  is_turn_white_ = !is_turn_white_;
+  if (active_color_ == Color::WHITE)
+    active_color_ = Color::BLACK;
+  else
+    active_color_ = Color::WHITE;
+}
+
+bool Board::IsWin(Color color) const {
+  if (color == Color::WHITE)
+    return state_ == GameState::WIN_WHITE;
+  else
+    return state_ == GameState::WIN_BLACK;
 }

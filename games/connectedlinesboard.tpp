@@ -6,15 +6,16 @@ template <unsigned int X, unsigned int Y, unsigned int Z>
 void ConnectedLinesBoard<X, Y, Z>::CheckForGameOver(
     PositionIndex last_position) {
   // check for win
-  std::bitset<X* Y* Z>& positions =
-      (is_turn_white_) ? positions_white_ : positions_black_;
   for (LineIndex line : GetLinesForPosition(last_position)) {
     const std::vector<PositionIndex>& line_positions =
         GetPositionsForLine(line);
 
     bool all_desired = true;
+    PositionValue desired_value = active_color_ == Color::WHITE
+                                      ? PositionValue::WHITE
+                                      : PositionValue::BLACK;
     for (int i = 0; i < line_positions.size(); ++i) {
-      if (!positions[line_positions[i]]) {
+      if (GetPositionValue(line_positions[i]) != desired_value) {
         all_desired = false;
         break;
       }
@@ -23,19 +24,17 @@ void ConnectedLinesBoard<X, Y, Z>::CheckForGameOver(
     if (!all_desired)
       continue;
 
-    is_game_over_ = true;
-    is_win_white_ = is_turn_white_;
-    is_win_black_ = !is_turn_white_;
+    if (active_color_ == Color::WHITE)
+      state_ = GameState::WIN_WHITE;
+    else
+      state_ = GameState::WIN_BLACK;
+
     return;
   }
 
   // check for tie
-  if (!HasRemainingMoves()) {
-    is_game_over_ = true;
-    is_win_white_ = false;
-    is_win_black_ = false;
-    return;
-  }
+  if (!HasRemainingMoves())
+    state_ = GameState::TIE;
 }
 
 template <unsigned int X, unsigned int Y, unsigned int Z>

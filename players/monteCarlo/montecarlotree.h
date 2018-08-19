@@ -10,13 +10,10 @@ class MonteCarloTree {
  public:
   MonteCarloTree();
 
-  const std::shared_ptr<MonteCarloTreeNode> GetTreeRoot() const {
-    return root_;
-  }
-
   void Selection(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
   void Expansion(std::vector<std::shared_ptr<MonteCarloTreeNode>>& nodes);
 
+  const std::shared_ptr<MonteCarloTreeNode> root() const { return root_; }
   void SetRoot(std::unique_ptr<const Board> board);
 
  protected:

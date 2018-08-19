@@ -10,6 +10,8 @@ class ConnectedLinesBoard : public Board3D<X, Y, Z> {
 
   void CheckForGameOver(PositionIndex last_position);
 
+  using Board3D<X, Y, Z>::GetPositionValue;
+
  protected:
   virtual const std::vector<PositionIndex>& GetPositionsForLine(
       LineIndex line) = 0;
@@ -20,14 +22,10 @@ class ConnectedLinesBoard : public Board3D<X, Y, Z> {
       const std::vector<std::vector<PositionIndex>>& lines_to_positions_,
       std::vector<std::vector<LineIndex>>& positions_to_lines);
 
-  using Board3D<X, Y, Z>::positions_white_;
-  using Board3D<X, Y, Z>::positions_black_;
   using Board3D<X, Y, Z>::num_positions_;
   using Board3D<X, Y, Z>::HasRemainingMoves;
-  using Board::is_game_over_;
-  using Board::is_turn_white_;
-  using Board::is_win_black_;
-  using Board::is_win_white_;
+  using Board::active_color_;
+  using Board::state_;
 };
 
 #include "connectedlinesboard.tpp"

@@ -13,7 +13,7 @@ class MonteCarloTreeNode {
  public:
   MonteCarloTreeNode(std::unique_ptr<const Board> board);
 
-  ZobristValue GetZobristValue() const { return board_->GetZobristValue(); }
+  ZobristValue GetZobristValue() const { return board_->zobrist_value(); }
 
   bool IsLeafNode();
   bool IsExpandable();
@@ -34,9 +34,9 @@ class MonteCarloTreeNode {
   unsigned int GetNumEvaluations() const { return num_evaluations_; }
   unsigned int GetNumWins() const { return num_wins_; }
 
-  bool IsLosingState() { return is_losing_state_; }
-  bool IsWinningState() { return is_winning_state_; }
-  bool IsResultDecided() { return (is_losing_state_ || is_winning_state_); }
+  bool is_losing_state() { return is_losing_state_; }
+  bool is_winning_state() { return is_winning_state_; }
+  bool IsDecidedState() { return (is_losing_state_ || is_winning_state_); }
 
   void HasWinningMove(Move winning_move);
   void HasLosingMove();

@@ -35,7 +35,7 @@ Move MonteCarloPlayer::GetNextMove(Board* board) {
   thread_pool_.waitForDone();
 
   // find best move
-  Move best_move = tree_.GetTreeRoot()->GetBestMove();
+  Move best_move = tree_.root()->GetBestMove();
 
   // make move (update tree root)
   std::unique_ptr<Board> board_copy = board->Copy();

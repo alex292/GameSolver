@@ -110,7 +110,7 @@ void MonteCarloTreeNode::AddExploredMove(
   locker.unlock();
 
   // check for winning/losing moves
-  if (node->IsLosingState())
+  if (node->is_losing_state())
     HasWinningMove(move);
 }
 
@@ -188,7 +188,7 @@ void MonteCarloTreeNode::HasLosingMove() {
   while (iter_explored.hasNext()) {
     iter_explored.next();
     const std::shared_ptr<MonteCarloTreeNode>& n = iter_explored.value();
-    if (!n->IsWinningState())
+    if (!n->is_winning_state())
       return;
   }
   explored_locker.unlock();

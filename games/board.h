@@ -27,22 +27,16 @@ class Board {
   virtual PositionIndex PerformMove(Move move) = 0;
   virtual std::unique_ptr<Board> Copy() const = 0;
 
-  bool IsTurnWhite() const { return is_turn_white_; }
-  bool IsGameOver() const { return is_game_over_; }
-  bool IsWinWhite() const { return is_win_white_; }
-  bool IsWinBlack() const { return is_win_black_; }
-  bool IsTie() const {
-    return is_game_over_ && !is_win_white_ && !is_win_black_;
-  }
+  bool IsGameOver() const { return state_ != GameState::OPEN; }
+  bool IsWin(Color color) const;
 
-  ZobristValue GetZobristValue() const { return zobrist_value_; }
+  GameState state() const { return state_; }
+  Color active_color() const { return active_color_; }
+  ZobristValue zobrist_value() const { return zobrist_value_; }
 
  protected:
-  bool is_turn_white_ = true;
-  bool is_game_over_ = false;
-  bool is_win_white_ = false;
-  bool is_win_black_ = false;
-
+  GameState state_ = GameState::OPEN;
+  Color active_color_ = Color::WHITE;
   ZobristValue zobrist_value_ = 0;
 
   virtual void CheckForGameOver(PositionIndex last_position) = 0;

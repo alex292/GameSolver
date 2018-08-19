@@ -18,15 +18,20 @@ class Board3D : public Board {
   virtual bool IsMovePossible(Move move) const;
   bool HasRemainingMoves();
 
+  PositionValue GetPositionValue(PositionIndex position) const;
+
  protected:
   const static unsigned int num_positions_ = X * Y * Z;
   const static unsigned int num_moves_ = X * Y;
 
-  std::bitset<X * Y * Z> positions_white_;
-  std::bitset<X * Y * Z> positions_black_;
+  void SetPosition(PositionIndex position);
 
   PositionIndex GetResultingPositionIndex(Move move) const;
   PositionIndex MapXYZtoPositionIndex(int x, int y, int z) const;
+
+ private:
+  std::bitset<X * Y * Z> positions_white_;
+  std::bitset<X * Y * Z> positions_black_;
 };
 
 #include "board3d.tpp"

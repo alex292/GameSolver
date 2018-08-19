@@ -4,11 +4,12 @@
 typedef unsigned short Move;
 typedef unsigned short int PositionIndex;
 typedef unsigned long ZobristValue;
-typedef unsigned char PositionValue;
 typedef unsigned char LineIndex;
 
-#define POSITION_VALUE_FREE 0
-#define POSITION_VALUE_WHITE 1
-#define POSITION_VALUE_BLACK 2
+enum class PositionValue { FREE, WHITE, BLACK };
+
+enum class Color { WHITE, BLACK };
+
+enum class GameState { OPEN, WIN_BLACK, WIN_WHITE, TIE };
 
 #endif  // TYPES_H

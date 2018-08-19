@@ -30,7 +30,7 @@ Move Board3D<X, Y, Z>::ReadableMoveToMove(const QString& readable_move,
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
 void Board3D<X, Y, Z>::GetPossibleMoves(std::vector<Move>& moves) const {
-  if (is_game_over_)
+  if (IsGameOver())
     return;
 
   for (Move i = 0; i < num_moves_; ++i) {
@@ -54,7 +54,7 @@ bool Board3D<X, Y, Z>::IsMovePossible(Move move) const {
 
 template <unsigned int X, unsigned int Y, unsigned int Z>
 bool Board3D<X, Y, Z>::HasRemainingMoves() {
-  if (is_game_over_)
+  if (IsGameOver())
     return false;
 
   for (int i = 0; i < num_moves_; ++i) {
@@ -63,6 +63,23 @@ bool Board3D<X, Y, Z>::HasRemainingMoves() {
   }
 
   return false;
+}
+
+template <unsigned int X, unsigned int Y, unsigned int Z>
+PositionValue Board3D<X, Y, Z>::GetPositionValue(PositionIndex position) const {
+  if (positions_white_[position])
+    return PositionValue::WHITE;
+  if (positions_black_[position])
+    return PositionValue::BLACK;
+  return PositionValue::FREE;
+}
+
+template <unsigned int X, unsigned int Y, unsigned int Z>
+void Board3D<X, Y, Z>::SetPosition(PositionIndex position) {
+  if (active_color_ == Color::WHITE)
+    positions_white_[position] = true;
+  else
+    positions_black_[position] = true;
 }
 
 template <unsigned int X, unsigned int Y, unsigned int Z>

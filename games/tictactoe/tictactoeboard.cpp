@@ -21,13 +21,11 @@ PositionIndex TicTacToeBoard::PerformMove(Move move) {
   PositionIndex position = GetResultingPositionIndex(move);
 
   // set position
-  if (is_turn_white_) {
-    positions_white_[position] = true;
+  SetPosition(position);
+  if (active_color_ == Color::WHITE)
     zobrist_value_ ^= zobrist_values_positions_white_[position];
-  } else {
-    positions_black_[position] = true;
+  else
     zobrist_value_ ^= zobrist_values_positions_black_[position];
-  }
 
   return position;
 }

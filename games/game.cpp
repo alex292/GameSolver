@@ -11,20 +11,22 @@ Game::Game(std::unique_ptr<Board> board,
 
 void Game::Run() {
   while (!board_->IsGameOver()) {
-    Move move = (board_->IsTurnWhite())
+    Move move = (board_->active_color() == Color::WHITE)
                     ? player_white_->GetNextMove(board_.get())
                     : player_black_->GetNextMove(board_.get());
-    qDebug() << "Player" << ((board_->IsTurnWhite()) ? "white" : "black")
+    qDebug() << "Player"
+             << ((board_->active_color() == Color::WHITE) ? "white" : "black")
              << "plays" << move << "(" << board_->MoveToReadableMove(move)
              << ")";
 
     board_->MakeMove(move);
   }
 
+  GameState state = board_->state();
   qDebug() << "### Game Over ###";
-  if (board_->IsWinWhite())
+  if (state == GameState::WIN_WHITE)
     qDebug() << "Player white wins!";
-  else if (board_->IsWinBlack())
+  else if (state == GameState::WIN_BLACK)
     qDebug() << "Player black wins!";
   else
     qDebug() << "tie";

@@ -9,10 +9,10 @@ MonteCarloTreeExplorer::MonteCarloTreeExplorer(
     : tree_(tree), deadline_timer_(deadline_timer) {}
 
 void MonteCarloTreeExplorer::run() {
-  const std::shared_ptr<MonteCarloTreeNode> root = tree_->GetTreeRoot();
+  const std::shared_ptr<MonteCarloTreeNode> root = tree_->root();
   std::vector<std::shared_ptr<MonteCarloTreeNode>> node_path;
 
-  while (!deadline_timer_->hasExpired() && !root->IsResultDecided()) {
+  while (!deadline_timer_->hasExpired() && !root->IsDecidedState()) {
     node_path.clear();
     tree_->Selection(node_path);
     tree_->Expansion(node_path);
@@ -37,13 +37,11 @@ void MonteCarloTreeExplorer::BackpropagateResult(
     const Board* playout_board) {
   for (const std::shared_ptr<MonteCarloTreeNode>& node : node_path) {
     const Board* board = node->GetBoard();
-    if ((board->IsTurnWhite() && playout_board->IsWinWhite()) ||
-        (!board->IsTurnWhite() && playout_board->IsWinBlack()))
-      node->AddLoss();
-    else if ((board->IsTurnWhite() && playout_board->IsWinBlack()) ||
-             (!board->IsTurnWhite() && playout_board->IsWinWhite()))
-      node->AddWin();
-    else
+    if (playout_board->state() == GameState::TIE)
       node->AddTie();
+    else if (playout_board->IsWin(board->active_color()))
+      node->AddLoss();
+    else
+      node->AddWin();
   }
 }

@@ -5,7 +5,7 @@
 
 const std::shared_ptr<MonteCarloTreeNode>
 MonteCarloTreeNodeCollection::CreateNode(std::unique_ptr<const Board> board) {
-  ZobristValue zobrist_value = board->GetZobristValue();
+  ZobristValue zobrist_value = board->zobrist_value();
 
   QWriteLocker locker(&nodes_lock_);
 
@@ -21,7 +21,7 @@ MonteCarloTreeNodeCollection::CreateNode(std::unique_ptr<const Board> board) {
 
 const std::shared_ptr<MonteCarloTreeNode> MonteCarloTreeNodeCollection::GetNode(
     std::unique_ptr<const Board> board) {
-  ZobristValue zobrist_value = board->GetZobristValue();
+  ZobristValue zobrist_value = board->zobrist_value();
 
   QReadLocker locker(&nodes_lock_);
 
